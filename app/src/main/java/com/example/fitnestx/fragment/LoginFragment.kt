@@ -83,10 +83,20 @@ class LoginFragment : Fragment() {
                 .addOnCompleteListener { task ->
                     loginButton.isEnabled = true
                     if(task.isSuccessful){
-                        val intent = Intent(requireContext(), userMainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                        requireActivity().finish()
+                        val user = auth.currentUser
+
+                        user?.reload()?.addOnCompleteListener {
+                            if(user != null && user.isEmailVerified){
+                                val intent = Intent(requireContext(), userMainActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                startActivity(intent)
+                                requireActivity().finish()
+                            }
+                            else{
+                                auth.signOut()
+                                Toast.makeText(requireContext(), "Please Verify email before login ! ", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
                     else{
                         Toast.makeText(requireContext(), "Login Failed ! ", Toast.LENGTH_SHORT).show()
