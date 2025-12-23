@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "78713182680",
+    "project_id": "fitnestx-6b94b",
+    "storage_bucket": "fitnestx-6b94b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:78713182680:android:4ac38352bfc0ca7aff3aad",
+        "android_client_info": {
+          "package_name": "com.example.fitnestx"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxPLzDZd7VBwrfGHJxYJhoOvxUjUPezLk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
