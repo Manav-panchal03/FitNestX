@@ -11,10 +11,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import com.example.fitnestx.AppUsers
 import com.example.fitnestx.R
-import com.example.fitnestx.userMainActivity
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -136,5 +134,12 @@ class RegisterFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
         dialog.show()
+
+        dialogView.postDelayed({
+            if(dialog.isShowing){
+                dialog.dismiss()
+                parentFragmentManager.popBackStack()
+            }
+        }, 1500) // 1.5 sec
     }
 }
