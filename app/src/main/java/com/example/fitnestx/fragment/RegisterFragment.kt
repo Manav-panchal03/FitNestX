@@ -74,7 +74,7 @@ class RegisterFragment : Fragment() {
             } else tilPassword.error = null
 
             if (password != confirmPassword) {
-                tilConfirmPassword.error = "Passwords don’t match"
+                tilConfirmPassword.error = "Passwords doesn’t match"
                 return@setOnClickListener
             } else tilConfirmPassword.error = null
 
@@ -84,6 +84,15 @@ class RegisterFragment : Fragment() {
                 .addOnCompleteListener { task ->
                     btnSignUp.isEnabled = true
                     if(task.isSuccessful){
+                        // 1) varification link to user's email
+                        val user = auth.currentUser
+                        user?.sendEmailVerification()
+                            ?.addOnCompleteListener { task ->
+                                if(!task.isSuccessful){
+                                    Toast.makeText(requireContext(), "Error : ${task.exception?.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        // 2) after verify , push data to database
                         val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
                         SaveUserToDataBase(uid = uid , name = name ,email = email)
                     }
@@ -135,11 +144,11 @@ class RegisterFragment : Fragment() {
         }
         dialog.show()
 
-        dialogView.postDelayed({
-            if(dialog.isShowing){
-                dialog.dismiss()
-                parentFragmentManager.popBackStack()
-            }
-        }, 1500) // 1.5 sec
+//        dialogView.postDelayed({
+//            if(dialog.isShowing){
+//                dialog.dismiss()
+//                parentFragmentManager.popBackStack()
+//            }
+//        }, 1500) // 1.5 sec
     }
 }
