@@ -25,7 +25,6 @@ class RegisterFragment : Fragment() {
 
     private lateinit var auth : FirebaseAuth
     private lateinit var usersRef : DatabaseReference
-    private  var temp : Int = 0
 
 
     override fun onCreateView(
