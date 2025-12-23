@@ -136,7 +136,6 @@ class RegisterFragment : Fragment() {
             // After user taps OK, go back to LoginFragment
             parentFragmentManager.popBackStack()
         }
-
         dialog.show()
     }
 }
