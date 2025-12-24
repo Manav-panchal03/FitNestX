@@ -8,22 +8,6 @@
     android:orientation="vertical"
     tools:context=".userMainActivity">
 
-<!--    <TextView-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Hello , User ! \n You are Logged In !"-->
-<!--        android:gravity="center"-->
-<!--        android:textSize="30dp"-->
-<!--        android:fontFamily="sans-serif-condensed"/>-->
-
-<!--    <com.google.android.material.button.MaterialButton-->
-<!--        android:id="@+id/btnLogout"-->
-<!--        style="@style/Widget.MaterialComponents.Button.OutlinedButton"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="32dp"-->
-<!--        android:text="Logout" />-->
-
     <FrameLayout
         android:id="@+id/containerUser"
         android:layout_width="match_parent"
@@ -34,9 +18,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:abb_indicatorAppearance="invisible"
-        app:abb_indicatorColor="#E3342F"
-        app:abb_selectedTabType="icon"
+        app:abb_tabColorSelected="#E3342F"
         app:abb_tabAnimation="fade"
+        app:abb_indicatorColor="#E3342F"
+        app:abb_indicatorMargin="20dp"
+        app:abb_indicatorAnimation="fade"
+        app:abb_indicatorAppearance="round"
         app:abb_tabs="@menu/menu_user_bottom" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

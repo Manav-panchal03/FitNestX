@@ -56,6 +56,7 @@ class userMainActivity : AppCompatActivity() {
                     R.id.nav_profile -> loadFragment(ProfileFragment())
                 }
             }
+
         })
 
 
