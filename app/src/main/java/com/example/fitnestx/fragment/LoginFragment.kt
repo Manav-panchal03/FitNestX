@@ -12,6 +12,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.example.fitnestx.R
+import com.example.fitnestx.SplashScreenSecondFragment
 import com.example.fitnestx.userMainActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
@@ -138,11 +139,11 @@ class LoginFragment : Fragment() {
                     requireActivity().finish()
                 }
                 else{
-                    navigateToProfileSetUp() //if profile imncomplete
+                    navigateToProfileSetUp() //if profile incomplete
                 }
             }
             else{
-                navigateToProfileSetUp() // first time login , than also go to profile setup
+                navigateToProfileSetUp() // first time login , than also go to splash screen
             }
         }.addOnFailureListener {
             view?.findViewById<Button>(R.id.btnLogin)?.isEnabled = true
@@ -152,7 +153,7 @@ class LoginFragment : Fragment() {
 
     private fun navigateToProfileSetUp(){
         parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, ProfileSetupFragment())
+            .replace(R.id.fragment_container, SplashScreenSecondFragment())
             .commit()
     }
 }
