@@ -34,7 +34,7 @@ class ProfileSetupFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
-        database = FirebaseDatabase.getInstance().getReference("AppUsers")
+        database = FirebaseDatabase.getInstance().getReference("AppUsers    ")
 
         val etAge = view.findViewById<TextInputEditText>(R.id.etAge)
         val etHeight = view.findViewById<TextInputEditText>(R.id.etHeight)
@@ -46,14 +46,14 @@ class ProfileSetupFragment : Fragment() {
 
         btnMale.setOnClickListener {
             selectedGender  = "Male"
-            btnMale.setBackgroundColor(resources.getColor(R.color.brand_red))
-            btnFemale.setBackgroundColor(resources.getColor(R.color.text_gray))
+//            btnMale.setBackgroundColor(resources.getColor(R.color.brand_red))
+//            btnFemale.setBackgroundColor(resources.getColor(R.color.text_gray))
         }
 
         btnFemale.setOnClickListener {
             selectedGender = "Female"
-            btnFemale.setBackgroundColor(resources.getColor(R.color.brand_red))
-            btnMale.setBackgroundColor(resources.getColor(R.color.text_gray))
+//            btnFemale.setBackgroundColor(resources.getColor(R.color.brand_red))
+//            btnMale.setBackgroundColor(resources.getColor(R.color.text_gray))
         }
 
         btnNext.setOnClickListener {
