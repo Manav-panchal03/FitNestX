@@ -1,34 +1,26 @@
 package com.example.fitnestx.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
 import com.example.fitnestx.R
+import com.example.fitnestx.userMainActivity
+import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [ProfileSetupFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ProfileSetupFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var database: DatabaseReference
+    private lateinit var auth: FirebaseAuth
+    private var selectedGender: String = "Male"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,23 +30,64 @@ class ProfileSetupFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_profile_setup, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ProfileSetupFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ProfileSetupFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().getReference("AppUsers")
+
+        val etAge = view.findViewById<TextInputEditText>(R.id.etAge)
+        val etHeight = view.findViewById<TextInputEditText>(R.id.etHeight)
+        val etWeight = view.findViewById<TextInputEditText>(R.id.etWeight)
+        val btnNext = view.findViewById<Button>(R.id.btnNext)
+        val progressBar = view.findViewById<com.google.android.material.progressindicator.LinearProgressIndicator>(R.id.setupProgress)
+        val btnMale = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnMale)
+        val btnFemale = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnFemale)
+
+        btnMale.setOnClickListener {
+            selectedGender  = "Male"
+            btnMale.setBackgroundColor(resources.getColor(R.color.brand_red))
+            btnFemale.setBackgroundColor(resources.getColor(R.color.text_gray))
+        }
+
+        btnFemale.setOnClickListener {
+            selectedGender = "Female"
+            btnFemale.setBackgroundColor(resources.getColor(R.color.brand_red))
+            btnMale.setBackgroundColor(resources.getColor(R.color.text_gray))
+        }
+
+        btnNext.setOnClickListener {
+            val age = etAge.text.toString().toIntOrNull()
+            val height = etHeight.text.toString().toDoubleOrNull()
+            val weight = etWeight.text.toString().toDoubleOrNull()
+
+            if(age == null || height == null || weight == null){
+                Toast.makeText(requireContext(), "Fill All Details !", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
-    }
+
+            progressBar.setProgress(100 , true)
+            val uid = auth.currentUser?.uid ?: return@setOnClickListener
+
+            val updatedUser = mapOf(
+                "age" to age,
+                "gender" to selectedGender,
+                "height" to height,
+                "weight" to weight,
+                "isProfileComplete" to true
+            )
+
+            database.child(uid).updateChildren(updatedUser).addOnSuccessListener {
+                Toast.makeText(requireContext(), "Profile Ready !", Toast.LENGTH_SHORT).show()
+
+                startActivity(Intent(requireContext() , userMainActivity::class.java))
+                activity?.finish()
+            }.addOnFailureListener {
+                progressBar.setProgress(50 , true)
+                Toast.makeText(requireContext(), "Firebase Error !", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+
+   }
 }

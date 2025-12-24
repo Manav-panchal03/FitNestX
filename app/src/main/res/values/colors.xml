@@ -4,5 +4,10 @@
     <color name="white">#FFFFFFFF</color>
     <color name="fit_primary">#00F5A0</color>
     <color name="fit_grey">#7A8A9A</color>
+    <color name="brand_red">#FF0000</color>
+    <color name="bg_white">#FFFFFF</color>
+    <color name="text_black">#1D1617</color>
+    <color name="text_gray">#7B6F72</color>
+    <color name="input_bg">#F7F8F8</color>
 
 </resources>
