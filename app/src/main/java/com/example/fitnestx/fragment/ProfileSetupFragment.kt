@@ -34,7 +34,7 @@ class ProfileSetupFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
-        database = FirebaseDatabase.getInstance().getReference("AppUsers    ")
+        database = FirebaseDatabase.getInstance().getReference("AppUsers").child(auth.currentUser!!.uid)
 
         val etAge = view.findViewById<TextInputEditText>(R.id.etAge)
         val etHeight = view.findViewById<TextInputEditText>(R.id.etHeight)
@@ -77,7 +77,7 @@ class ProfileSetupFragment : Fragment() {
                 "isProfileComplete" to true
             )
 
-            database.child(uid).updateChildren(updatedUser).addOnSuccessListener {
+            database.updateChildren(updatedUser).addOnSuccessListener {
                 Toast.makeText(requireContext(), "Profile Ready !", Toast.LENGTH_SHORT).show()
 
                 startActivity(Intent(requireContext() , userMainActivity::class.java))

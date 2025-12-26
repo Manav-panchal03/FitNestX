@@ -125,9 +125,6 @@ class LoginFragment : Fragment() {
     private fun checkProfileStatus(uid : String){
         // ERROR: Jya sudhi upar ni 'database =' wali line execute nahi thay, tya sudhi aa crash thase.
         // Safe check mate tame aa line add kari sako:
-        if (!::database.isInitialized) {
-            database = FirebaseDatabase.getInstance().getReference("AppUsers")
-        }
         database.child(uid).get().addOnSuccessListener { snapshot ->
             if (snapshot.exists()){
                 val isComplete = snapshot.child("isProfileComplete").getValue(Boolean::class.java) ?: false
