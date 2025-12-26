@@ -74,14 +74,20 @@ class ProfileSetupFragment : Fragment() {
                 "gender" to selectedGender,
                 "height" to height,
                 "weight" to weight,
-                "isProfileComplete" to true
+                "isProfileComplete" to false //false because phase 2
             )
 
             database.updateChildren(updatedUser).addOnSuccessListener {
-                Toast.makeText(requireContext(), "Profile Ready !", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), " Physical Details Saved !", Toast.LENGTH_SHORT).show()
 
-                startActivity(Intent(requireContext() , userMainActivity::class.java))
-                activity?.finish()
+//                startActivity(Intent(requireContext() , userMainActivity::class.java))
+//                activity?.finish()
+
+                parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                    .replace(R.id.fragment_container , GoalSelectionFragment())
+                    .addToBackStack(null)
+                    .commit()
             }.addOnFailureListener {
                 progressBar.setProgress(50 , true)
                 Toast.makeText(requireContext(), "Firebase Error !", Toast.LENGTH_SHORT).show()
