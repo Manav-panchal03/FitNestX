@@ -46,12 +46,16 @@ class ProfileSetupFragment : Fragment() {
 
         btnMale.setOnClickListener {
             selectedGender  = "Male"
+            btnMale.setTextColor(resources.getColor(R.color.app_theme))
+            btnMale.setStrokeColorResource(R.color.app_theme)
 //            btnMale.setBackgroundColor(resources.getColor(R.color.brand_red))
 //            btnFemale.setBackgroundColor(resources.getColor(R.color.text_gray))
         }
 
         btnFemale.setOnClickListener {
             selectedGender = "Female"
+            btnMale.setTextColor(resources.getColor(R.color.app_theme))
+            btnMale.setStrokeColorResource(R.color.app_theme)
 //            btnFemale.setBackgroundColor(resources.getColor(R.color.brand_red))
 //            btnMale.setBackgroundColor(resources.getColor(R.color.text_gray))
         }

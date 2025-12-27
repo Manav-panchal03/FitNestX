@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import com.example.fitnestx.R
 import com.example.fitnestx.userMainActivity
@@ -18,8 +19,7 @@ import com.google.firebase.database.FirebaseDatabase
 class GoalSelectionFragment : Fragment() {
 
     private var selectedGoal: String = "Weight Loss"
-    private var selectedLevel: String = "Beginner"
-
+    private var selectedLevel : String = "Beginner"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,22 +32,42 @@ class GoalSelectionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val btnWeightLoss = view.findViewById<Button>(R.id.btnWeightLoss)
-        val btnMuscleGain = view.findViewById<Button>(R.id.btnMuscleGain)
-        val chipGroupLevel = view.findViewById<ChipGroup>(R.id.chipGroupLevel)
+        //Goal Views
+        val btnWeightLoss = view.findViewById<TextView>(R.id.btnWeightLoss)
+        val btnMuscleGain = view.findViewById<TextView>(R.id.btnMuscleGain)
+
+        //Level Views
+        val btnBeginner = view.findViewById<TextView>(R.id.btnBeginner)
+        val btnIntermediate = view.findViewById<TextView>(R.id.btnIntermediate)
+        val btnPro = view.findViewById<TextView>(R.id.btnPro)
+
         val btnFinish = view.findViewById<Button>(R.id.btnFinish)
 
-
+        //goal click logic
         btnWeightLoss.setOnClickListener {
             selectedGoal = "Weight Loss"
+            updateGoalUI(btnWeightLoss , btnMuscleGain)
         }
         btnMuscleGain.setOnClickListener {
             selectedGoal = "Muscle Gain"
+            updateGoalUI(btnMuscleGain , btnWeightLoss)
         }
 
-        chipGroupLevel.setOnCheckedStateChangeListener { group, checkedIds ->
-            val chip = group.findViewById<Chip>(checkedIds[0])
-            selectedLevel = chip?.text?.toString() ?: "Beginner"
+        //level click logic
+        btnBeginner.setOnClickListener {
+            selectedLevel = "Beginner"
+            updatedLevelUI(btnBeginner , btnIntermediate , btnPro)
+
+        }
+
+        btnIntermediate.setOnClickListener {
+            selectedLevel = "Intermediate"
+            updatedLevelUI(btnIntermediate , btnBeginner , btnPro)
+        }
+
+        btnPro.setOnClickListener {
+            selectedLevel = "Pro"
+            updatedLevelUI(btnPro , btnBeginner , btnIntermediate)
         }
 
         btnFinish.setOnClickListener {
@@ -55,24 +75,42 @@ class GoalSelectionFragment : Fragment() {
         }
     }
 
+    private fun updateGoalUI(selected : TextView , unselected : TextView){
+        selected.setBackgroundResource(R.drawable.bg_selection_selected)
+        selected.setTextColor(resources.getColor(R.color.white))
+
+        unselected.setBackgroundResource(R.drawable.bg_selection_unselected)
+        unselected.setTextColor(resources.getColor(R.color.black))
+    }
+
+    private fun updatedLevelUI(selected : TextView , un1 : TextView , un2 : TextView){
+        selected.setBackgroundResource(R.drawable.bg_selection_selected)
+        selected.setTextColor(resources.getColor(R.color.white))
+
+        un1.setBackgroundResource(R.drawable.bg_selection_unselected)
+        un1.setTextColor(resources.getColor(R.color.black))
+
+        un2.setBackgroundResource(R.drawable.bg_selection_unselected)
+        un2.setTextColor(resources.getColor(R.color.black))
+    }
+
     private fun saveToDataBase(){
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val database = FirebaseDatabase.getInstance().getReference("AppUsers").child(uid)
 
-        val data = mapOf(
+        val updates = mapOf(
             "goalType" to selectedGoal,
-            "fitnessLevel" to selectedLevel ,
+            "fitnessLevel" to selectedLevel,
             "isProfileComplete" to true
         )
 
-        database.updateChildren(data).addOnSuccessListener {
-
-            Toast.makeText(requireContext(), "Profile Setup Complete !", Toast.LENGTH_SHORT).show()
-
-            val intent = Intent(requireContext() , userMainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            activity?.finish()
-        }
+        database.updateChildren(updates)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Profile Setup Completed ! ", Toast.LENGTH_SHORT).show()
+                val intent = Intent(requireContext(), userMainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                activity?.finish()
+            }
     }
 }

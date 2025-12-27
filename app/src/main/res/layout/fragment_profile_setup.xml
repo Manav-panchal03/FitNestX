@@ -15,7 +15,7 @@
         android:progress="50"
         app:trackCornerRadius="15dp"
         app:trackThickness="10dp"
-        app:indicatorColor="@color/brand_red"
+        app:indicatorColor="@color/app_theme"
         app:trackColor="#F1F1F1"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -57,8 +57,8 @@
             android:layout_weight="1"
             android:text="Male"
             android:layout_marginEnd="10dp"
-            android:textColor="@color/brand_red"
-            app:strokeColor="@color/brand_red"
+            android:textColor="@color/app_theme"
+            app:strokeColor="@color/app_theme"
             app:cornerRadius="15dp"/>
 
         <com.google.android.material.button.MaterialButton
@@ -142,7 +142,7 @@
         android:layout_height="60dp"
         android:text="Next"
         android:textSize="18sp"
-        android:backgroundTint="@color/brand_red"
+        android:backgroundTint="@color/app_theme"
         app:cornerRadius="30dp"
         android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toBottomOf="parent" />

@@ -1,115 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:padding="24dp">
+    android:padding="24dp"
+    tools:context=".fragment.GoalSelectionFragment">
 
     <TextView
-        android:id="@+id/tvHeader"
+        android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Choose Your Goal"
-        android:textSize="26sp"
+        android:text="Select Your Goal"
+        android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/black"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="20dp"/>
 
-    <com.google.android.material.button.MaterialButtonToggleGroup
-        android:id="@+id/toggleGoal"
+    <LinearLayout
+        android:id="@+id/llGoalContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:singleSelection="true"
-        app:selectionRequired="true"
+        android:orientation="vertical"
         android:layout_marginTop="30dp"
-        app:layout_constraintTop_toBottomOf="@id/tvHeader">
+        app:layout_constraintTop_toBottomOf="@id/tvTitle">
 
-        <Button
+        <TextView
             android:id="@+id/btnWeightLoss"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
+            android:layout_height="60dp"
             android:text="Weight Loss"
-            android:textSize="16sp"
-            android:textAllCaps="false"
-            app:strokeColor="@color/brand_red"
-            app:cornerRadius="12dp"/>
+            android:gravity="center"
+            android:textSize="18sp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_selection_unselected"
+            android:textColor="@color/black"
+            android:clickable="true"
+            android:focusable="true"/>
 
-        <Button
+        <TextView
             android:id="@+id/btnMuscleGain"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
+            android:layout_height="60dp"
             android:text="Muscle Gain"
-            android:textSize="16sp"
-            android:textAllCaps="false"
-            app:strokeColor="@color/brand_red"
-            app:cornerRadius="12dp"
-            android:layout_marginTop="10dp"/>
-
-    </com.google.android.material.button.MaterialButtonToggleGroup>
+            android:gravity="center"
+            android:textSize="18sp"
+            android:background="@drawable/bg_selection_unselected"
+            android:textColor="@color/black"
+            android:clickable="true"
+            android:focusable="true"/>
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/tvLevelHeader"
+        android:id="@+id/tvLevelTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Experience Level"
-        android:textSize="18sp"
+        android:text="Fitness Level"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginTop="40dp"
-        app:layout_constraintTop_toBottomOf="@id/toggleGoal"
+        android:layout_marginTop="30dp"
+        app:layout_constraintTop_toBottomOf="@id/llGoalContainer"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroupLevel"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:singleSelection="true"
-        app:selectionRequired="true"
-        android:layout_marginTop="15dp"
-        app:layout_constraintTop_toBottomOf="@id/tvLevelHeader">
+        android:orientation="horizontal"
+        android:weightSum="3"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/tvLevelTitle">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipBeginner"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <TextView
+            android:id="@+id/btnBeginner"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
             android:text="Beginner"
-            app:chipBackgroundColor="@color/white"
-            app:chipStrokeColor="@color/brand_red"
-            android:checked="true"/>
+            android:gravity="center"
+            android:layout_margin="4dp"
+            android:background="@drawable/bg_selection_selected"
+            android:textColor="@color/white"/>
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipIntermediate"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <TextView
+            android:id="@+id/btnIntermediate"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
             android:text="Intermediate"
-            app:chipStrokeColor="@color/brand_red"/>
+            android:gravity="center"
+            android:layout_margin="4dp"
+            android:background="@drawable/bg_selection_unselected"
+            android:textColor="@color/black"/>
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipAdvanced"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Advanced"
-            app:chipStrokeColor="@color/brand_red"/>
-
-    </com.google.android.material.chip.ChipGroup>
+        <TextView
+            android:id="@+id/btnPro"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Pro"
+            android:gravity="center"
+            android:layout_margin="4dp"
+            android:background="@drawable/bg_selection_unselected"
+            android:textColor="@color/black"/>
+    </LinearLayout>
 
     <Button
         android:id="@+id/btnFinish"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="Complete Profile"
-        android:backgroundTint="@color/brand_red"
-        android:textColor="@color/white"
+        android:text="FINISH"
+        android:backgroundTint="@color/app_theme"
         app:cornerRadius="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="20dp"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
