@@ -51,6 +51,26 @@ class LoginFragment : Fragment() {
             val email = emailEditText.text?.toString()?.trim().orEmpty()
             val password = passwordEditText.text?.toString()?.trim().orEmpty()
 
+//            if(email.isEmpty() || password.isEmpty()){
+//                Toast.makeText(requireContext(), "Enter Email and Password ! ", Toast.LENGTH_SHORT).show()
+//            }
+//            else{
+//                loginButton.isEnabled = false
+//                auth.signInWithEmailAndPassword(email , password)
+//                    .addOnCompleteListener { task ->
+//                        loginButton.isEnabled = true
+//                        if(task.isSuccessful){
+//                            Toast.makeText(requireContext(), "Logged In !" , Toast.LENGTH_SHORT).show()
+//                            startActivity(Intent(requireContext(), userMainActivity::class.java))
+//                            requireActivity().finish()
+//                        }
+//                        else{
+//                            Toast.makeText(requireContext(), "Login failed : ${task.exception?.localizedMessage}", Toast.LENGTH_SHORT).show()
+//                        }
+//                    }
+//            }
+
+
             if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 tilEmail.error = "Invalid email"
                 return@setOnClickListener
@@ -103,12 +123,6 @@ class LoginFragment : Fragment() {
     }
 
     private fun checkProfileStatus(uid : String){
-        // ERROR: Jya sudhi upar ni 'database =' wali line execute nahi thay, tya sudhi aa crash thase.
-        // Safe check mate tame aa line add kari sako:
-
-//        if (!::database.isInitialized) {
-//            database = FirebaseDatabase.getInstance().getReference("AppUsers")
-//        }
 
         database.child(uid).get().addOnSuccessListener { snapshot ->
             if (snapshot.exists()){
