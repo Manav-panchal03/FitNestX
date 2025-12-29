@@ -106,7 +106,7 @@
         app:boxCornerRadiusTopEnd="15dp"
         app:boxCornerRadiusBottomStart="15dp"
         app:boxCornerRadiusBottomEnd="15dp"
-        android:hint="Weight (kg)"
+        android:hint="Current Weight (kg)"
         app:layout_constraintTop_toBottomOf="@id/tilAge">
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"

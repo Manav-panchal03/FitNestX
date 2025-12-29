@@ -52,8 +52,13 @@ class HomeFragment : Fragment() {
 
         //today's date setup
         todayDate = SimpleDateFormat("yyyy-MM-dd" , Locale.getDefault()).format(Date())
-        dbRef = FirebaseDatabase.getInstance().getReference("AppUsers").child(uid)
 
+        //database references
+        dbRef = FirebaseDatabase.getInstance().getReference("AppUsers").child(uid)
+        dbWater = FirebaseDatabase.getInstance().getReference("WaterIntake").child(uid).child(todayDate)
+        dbSleep = FirebaseDatabase.getInstance().getReference("SleepLog").child(uid).child(todayDate)
+
+        //views")
         val tvWelcome = view.findViewById<TextView>(R.id.tvWelcome)
         val tvBmiValue = view.findViewById<TextView>(R.id.tvBmiValue)
         val tvBmiCategory = view.findViewById<TextView>(R.id.tvBmiCategory)
@@ -70,40 +75,22 @@ class HomeFragment : Fragment() {
         dbRef.addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 if(snapshot.exists()){
-//                    val name = snapshot.child("name").value.toString()
-//                    val weight = snapshot.child("weight").value.toString().toDoubleOrNull() ?: 0.0
-//                    val height = snapshot.child("height").value.toString().toDoubleOrNull() ?: 0.0
-//                    val goal = snapshot.child("goalType").value.toString()
-//
-//                    tvWelcome.text = "Hello, $name!"
-//                    tvUserGoal.text = goal
-//
-//                    //bmi colculate
-//                    if(height > 0){
-//                        val heightInmeter = height / 100
-//                        val bmi = weight / (heightInmeter * heightInmeter)
-//                        tvBmiValue.text = String.format("%.2f", bmi)
-//                        tvBmiCategory.text = getBmiCategory(bmi)
-//                    }
-
                     val user = snapshot.getValue(AppUsers::class.java) ?: return
-
                     tvWelcome.text = "Hello , ${user.name}!"
                     tvUserGoal.text = user.goalType ?: "No Goal Set"
 
                     //water & sleeep status
-                    tvSleep.text = "${user.sleepHours} / 7 hrs"
-                    val waterGoal = 3.0// standard goal
-                    val waterPercentage = (user.waterIntake / waterGoal) * 100
-                    waterBar.progress = waterPercentage.toInt()
-                    tvWater.text = "${user.waterIntake} / ${waterGoal} L"
+//                    tvSleep.text = "${user.sleepHours} / 7 hrs"
+//                    val waterGoal = 3.0// standard goal
+//                    val waterPercentage = (user.waterIntake / waterGoal) * 100
+//                    waterBar.progress = waterPercentage.toInt()
+//                    tvWater.text = "${user.waterIntake} / ${waterGoal} L"
 
                     //bmi calculation
                     if(user.height != null && user.weight != null && user.height > 0){
                         val heightInMeter = user.height / 100
                         val bmi = user.weight / (heightInMeter * heightInMeter)
                         tvBmiValue.text = String.format("%.2f", bmi)
-
                         val category = getBmiCategory(bmi)
                         tvBmiCategory.text = category
                         updateBmiImage(category , ivBmiStatus)
@@ -114,12 +101,31 @@ class HomeFragment : Fragment() {
             override fun onCancelled(error: DatabaseError) {}
         })
 
+        dbWater.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val amount = snapshot.getValue(Double::class.java) ?: 0.0
+                val waterPercent = (amount / 3.0) * 100
+                waterBar.progress = waterPercent.toInt()
+                tvWater.text = "$amount / 3.0 L"
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+        dbSleep.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val hours = snapshot.getValue(Double::class.java) ?: 0.0
+                tvSleep.text = "$hours / 7 hrs"
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
         btnLogWater.setOnClickListener {
-            showLogDialog("Water" , "waterIntake" , arrayOf("Add 250ml" , "Add 500ml" , "Custom Amount" , "Reset"))
+            showLogDialog("Water" , dbWater, arrayOf("Add 250ml" , "Add 500ml" , "Custom Amount" , "Reset"))
         }
 
         btnLogSleep.setOnClickListener {
-            showLogDialog("Sleep" , "sleepHours" , arrayOf("Add 1 Hour" , "Add 2 Hours" , "Custom Amount" , "Reset"))
+            showLogDialog("Sleep" , dbSleep , arrayOf("Add 1 Hour" , "Add 2 Hours" , "Custom Amount" , "Reset"))
         }
     }
 
@@ -141,58 +147,47 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun showLogDialog(title : String ,fields : String , options : Array<String>){
+    private fun showLogDialog(title: String, targetRef: DatabaseReference, options: Array<String>) {
         AlertDialog.Builder(requireContext())
             .setTitle("Log $title")
-            .setItems(options){ _, which ->
+            .setItems(options) { _, which ->
                 when {
-                    options[which] == "Custom Amount" -> showCustomInputDialog(title,fields)
-                    options[which] == "Reset" -> dbRef.child(fields).setValue(0.0)
+                    options[which] == "Custom Amount" -> showCustomInputDialog(title, targetRef)
+                    options[which] == "Reset" -> targetRef.setValue(0.0)
                     else -> {
-                        val amount = if(fields == "waterIntake"){
-                            if(which == 0) 0.25 else 0.50
-                        } else {
-                            if(which == 0) 1.0 else 2.0
-                        }
-                        updateValueInFirebase(fields , amount)
+                        // Water mate 0.25/0.50 ane Sleep mate 1.0/2.0
+                        val amount = if (title == "Water") (if (which == 0) 0.25 else 0.50) else (if (which == 0) 1.0 else 2.0)
+                        updateValueInFirebase(targetRef, amount)
                     }
-
                 }
             }.show()
     }
 
-    private fun showCustomInputDialog(title: String , fields: String){
+    private fun showCustomInputDialog(title: String, targetRef: DatabaseReference) {
         val editText = EditText(requireContext())
         editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-        editText.hint = if(fields == "waterIntake") "e.g. 0.75 (Liters)" else "e.g. 7.5 (Hours)"
+        editText.hint = if (title == "Water") "e.g. 0.75 (Liters)" else "e.g. 7.5 (Hours)"
 
         AlertDialog.Builder(requireContext())
             .setTitle("Enter Custom $title")
             .setView(editText)
-            .setPositiveButton("Add"){ _, _ ->
+            .setPositiveButton("Add") { _, _ ->
                 val input = editText.text.toString().toDoubleOrNull()
-                if(input != null && input > 0){
-                    updateValueInFirebase(fields , input)
+                if (input != null && input > 0) {
+                    updateValueInFirebase(targetRef, input)
                 }
-            }
-            .setNegativeButton("Cancel" , null)
-            .show()
+            }.setNegativeButton("Cancel", null).show()
     }
 
-    private fun updateValueInFirebase(fields: String, amount: Double){
-        dbRef.child(fields).runTransaction(object : Transaction.Handler{
+    private fun updateValueInFirebase(targetRef: DatabaseReference, amount: Double) {
+        targetRef.runTransaction(object : Transaction.Handler {
             override fun doTransaction(mutableData: MutableData): Transaction.Result {
                 val currentVal = mutableData.getValue(Double::class.java) ?: 0.0
                 mutableData.value = currentVal + amount
                 return Transaction.success(mutableData)
             }
-
-            override fun onComplete(
-                error: DatabaseError?,
-                committed: Boolean,
-                currentData: DataSnapshot?
-            ) {
-                if(committed) Toast.makeText(requireContext(), "Updated ! ", Toast.LENGTH_SHORT).show()
+            override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                if (committed) Toast.makeText(requireContext(), "Updated!", Toast.LENGTH_SHORT).show()
             }
         })
     }

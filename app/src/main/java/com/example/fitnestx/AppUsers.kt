@@ -20,9 +20,9 @@ data class AppUsers(
     val goalType: String? = null, // e.g., "Weight Loss", "Muscle Gain"
     val fitnessLevel: String? = "Beginner", // e.g., "Beginner", "Intermediate"
 
-    // Tracking Fields (Add karyela)
-    val waterIntake: Double = 0.0, // Liters ma
-    val sleepHours: Double = 0.0,  // Hours ma
+//    // Tracking Fields (Add karyela)
+//    val waterIntake: Double = 0.0, // Liters ma
+//    val sleepHours: Double = 0.0,  // Hours ma
 
     // Membership & Subscription (Nava suggest karyela tables mujab)
     val membershipPlanId: String? = "free_plan",

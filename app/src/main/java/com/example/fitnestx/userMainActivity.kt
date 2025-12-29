@@ -12,9 +12,6 @@ import com.google.firebase.auth.FirebaseAuth
 import nl.joery.animatedbottombar.AnimatedBottomBar
 
 class userMainActivity : AppCompatActivity() {
-
-//    private lateinit var auth : FirebaseAuth
-//    private lateinit var btnLogout : MaterialButton
     private lateinit var bottombar : AnimatedBottomBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,21 +24,9 @@ class userMainActivity : AppCompatActivity() {
             insets
         }
 
-//        auth = FirebaseAuth.getInstance()
-
-//        btnLogout = findViewById(R.id.btnLogout)
-//        btnLogout.setOnClickListener {
-//            // 1) Firebase sign out (works for email + Google providers)
-//            auth.signOut()
-//            // 2) Go back to AuthActivity and clear back stack
-//            val intent = Intent(this, AuthActivity::class.java)
-//            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//            startActivity(intent)
-//            finish()
-//        }
         bottombar = findViewById(R.id.bottomBar)
         loadFragment(HomeFragment())
-
+        bottombar.selectTabById(R.id.nav_home, true)
         bottombar.setOnTabSelectListener(object : AnimatedBottomBar.OnTabSelectListener {
             override fun onTabSelected(
                 lastIndex: Int,
