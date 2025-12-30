@@ -75,7 +75,7 @@ class HomeFragment : Fragment() , SensorEventListener {
         dbRef = FirebaseDatabase.getInstance().getReference("AppUsers").child(uid)
         dbWater = FirebaseDatabase.getInstance().getReference("WaterIntake").child(uid).child(todayDate)
         dbSleep = FirebaseDatabase.getInstance().getReference("SleepLog").child(uid).child(todayDate)
-        dbSteps = FirebaseDatabase.getInstance().getReference("Steps").child(uid).child(todayDate).child("steps")
+        dbSteps = FirebaseDatabase.getInstance().getReference("Steps").child(uid).child(todayDate)
 
         //views")
         val tvWelcome = view.findViewById<TextView>(R.id.tvWelcome)
@@ -141,8 +141,13 @@ class HomeFragment : Fragment() , SensorEventListener {
 
         dbSteps.addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
-                val steps = snapshot.getValue(Int::class.java) ?: 0
-                tvSteps.text = "$steps Steps"
+                try {
+                    val steps = snapshot.getValue(Int::class.java) ?: 0
+                    tvSteps.text = "$steps Steps"
+                }catch (e: Exception){
+                    tvSteps.text = "0 Steps"
+                    android.util.Log.e("FirebaseError", "Data format mismatch: ${e.message}")
+                }
             }
             override fun onCancelled(error: DatabaseError) {}
         })
@@ -154,7 +159,6 @@ class HomeFragment : Fragment() , SensorEventListener {
             showLogDialog("Sleep" , dbSleep , arrayOf("Add 1 Hour" , "Add 2 Hours" , "Custom Amount" , "Reset"))
         }
     }
-
     //sensor logic
     override fun onSensorChanged(event: SensorEvent?) {
         if(event?.sensor?.type == Sensor.TYPE_STEP_COUNTER){
@@ -169,7 +173,9 @@ class HomeFragment : Fragment() , SensorEventListener {
                 currentData.value = currentSteps + increment
                 return Transaction.success(currentData)
             }
-            override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {}
+            override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                if(error != null) android.util.Log.e("Firebase " , error.message)
+            }
         })
     }
 
@@ -196,9 +202,7 @@ class HomeFragment : Fragment() , SensorEventListener {
         super.onPause()
         sensorManager?.unregisterListener(this)
     }
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        TODO("Not yet implemented")
-    }
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
     private fun getBmiCategory(bmi : Double) : String {
         return when{
