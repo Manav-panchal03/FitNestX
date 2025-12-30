@@ -10,5 +10,6 @@
     <color name="text_gray">#7B6F72</color>
     <color name="input_bg">#F7F8F8</color>
     <color name="app_theme">#E3342F</color>
+    <color name="green">#4CAF50</color>
 
 </resources>

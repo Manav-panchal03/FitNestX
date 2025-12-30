@@ -1,5 +1,13 @@
 package com.example.fitnestx
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import androidx.fragment.app.Fragment
@@ -12,7 +20,9 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -28,13 +38,21 @@ import java.util.Date
 import java.util.Locale
 
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment() , SensorEventListener {
 
     private lateinit var auth : FirebaseAuth
     private lateinit var dbRef : DatabaseReference
     private lateinit var dbWater : DatabaseReference
     private lateinit var dbSleep : DatabaseReference
+    private lateinit var dbSteps : DatabaseReference
     private lateinit var todayDate : String
+
+
+    //sensor variables
+    private var sensorManager : SensorManager? = null
+    private var stepSensor : Sensor? = null
+    private lateinit var tvSteps : TextView
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -57,6 +75,7 @@ class HomeFragment : Fragment() {
         dbRef = FirebaseDatabase.getInstance().getReference("AppUsers").child(uid)
         dbWater = FirebaseDatabase.getInstance().getReference("WaterIntake").child(uid).child(todayDate)
         dbSleep = FirebaseDatabase.getInstance().getReference("SleepLog").child(uid).child(todayDate)
+        dbSteps = FirebaseDatabase.getInstance().getReference("Steps").child(uid).child(todayDate).child("steps")
 
         //views")
         val tvWelcome = view.findViewById<TextView>(R.id.tvWelcome)
@@ -69,7 +88,14 @@ class HomeFragment : Fragment() {
         val tvSleep = view.findViewById<TextView>(R.id.tvSleepStats)
         val btnLogWater = view.findViewById<Button>(R.id.btnLogWater)
         val btnLogSleep = view.findViewById<Button>(R.id.btnLogSleep)
+        tvSteps = view.findViewById<TextView>(R.id.tvSteps)
 
+
+        //sensor init
+        sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+
+        checkStepPermission()
 
         //Fetching data from firebase
         dbRef.addValueEventListener(object : ValueEventListener{
@@ -78,14 +104,6 @@ class HomeFragment : Fragment() {
                     val user = snapshot.getValue(AppUsers::class.java) ?: return
                     tvWelcome.text = "Hello , ${user.name}!"
                     tvUserGoal.text = user.goalType ?: "No Goal Set"
-
-                    //water & sleeep status
-//                    tvSleep.text = "${user.sleepHours} / 7 hrs"
-//                    val waterGoal = 3.0// standard goal
-//                    val waterPercentage = (user.waterIntake / waterGoal) * 100
-//                    waterBar.progress = waterPercentage.toInt()
-//                    tvWater.text = "${user.waterIntake} / ${waterGoal} L"
-
                     //bmi calculation
                     if(user.height != null && user.weight != null && user.height > 0){
                         val heightInMeter = user.height / 100
@@ -120,6 +138,14 @@ class HomeFragment : Fragment() {
 
             override fun onCancelled(error: DatabaseError) {}
         })
+
+        dbSteps.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val steps = snapshot.getValue(Int::class.java) ?: 0
+                tvSteps.text = "$steps Steps"
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
         btnLogWater.setOnClickListener {
             showLogDialog("Water" , dbWater, arrayOf("Add 250ml" , "Add 500ml" , "Custom Amount" , "Reset"))
         }
@@ -127,6 +153,51 @@ class HomeFragment : Fragment() {
         btnLogSleep.setOnClickListener {
             showLogDialog("Sleep" , dbSleep , arrayOf("Add 1 Hour" , "Add 2 Hours" , "Custom Amount" , "Reset"))
         }
+    }
+
+    //sensor logic
+    override fun onSensorChanged(event: SensorEvent?) {
+        if(event?.sensor?.type == Sensor.TYPE_STEP_COUNTER){
+            updateStepsInFirebase(1)
+        }
+    }
+
+    private fun updateStepsInFirebase(increment: Int){
+        dbSteps.runTransaction(object : Transaction.Handler {
+            override fun doTransaction(currentData: MutableData): Transaction.Result {
+                val currentSteps = currentData.getValue(Int::class.java) ?: 0
+                currentData.value = currentSteps + increment
+                return Transaction.success(currentData)
+            }
+            override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {}
+        })
+    }
+
+    private fun checkStepPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+            }
+        }
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (!isGranted) Toast.makeText(context, "Permission denied for steps", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        stepSensor.let { sensor ->
+            sensorManager?.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager?.unregisterListener(this)
+    }
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        TODO("Not yet implemented")
     }
 
     private fun getBmiCategory(bmi : Double) : String {
