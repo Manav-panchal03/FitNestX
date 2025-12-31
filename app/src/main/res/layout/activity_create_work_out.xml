@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="16dp"
+    tools:context=".CreateWorkOutActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Routine"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="20dp"/>
+
+    <EditText
+        android:id="@+id/etRoutineName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Routine Name (e.g. Morning Workout)"
+        android:background="@drawable/edittext_background"
+        android:padding="12dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Focus Area:"
+        android:layout_marginTop="16dp"
+        android:textStyle="bold"/>
+
+    <Spinner
+        android:id="@+id/spinnerBodyPart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:entries="@array/body_parts_array" />
+
+<!--    <Button-->
+<!--        android:id="@+id/btnAddExercise"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="55dp"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:text="Add Exercises (+)"-->
+<!--        android:backgroundTint="@color/app_theme"-->
+<!--        android:textAllCaps="false"/>-->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAddExercise"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:text="Add Exercises (+)"
+        app:cornerRadius="12dp"
+        android:backgroundTint="@color/app_theme"
+        android:textAllCaps="false"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSelectedExercises"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"/>
+
+<!--    <Button-->
+<!--        android:id="@+id/btnSaveRoutine"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="60dp"-->
+<!--        android:text="Save Routine"-->
+<!--        android:backgroundTint="#4CAF50"/>-->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveRoutine"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="20dp"
+        android:text="Save Routine"
+        app:cornerRadius="12dp"
+        android:backgroundTint="@color/green"
+        android:textAllCaps="false"/>
+
+</LinearLayout>
