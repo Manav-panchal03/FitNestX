@@ -1,0 +1,49 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="4dp">
+
+    <TextView
+        android:id="@+id/tvSetNumber"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:text="1"
+        android:textStyle="bold"
+        android:gravity="center" />
+
+    <EditText
+        android:id="@+id/etWeight"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:hint="kg"
+        android:inputType="numberDecimal"
+        android:background="@drawable/edittext_background"
+        android:layout_marginHorizontal="8dp"
+        android:gravity="center"
+        android:textSize="14sp"/>
+
+    <EditText
+        android:id="@+id/etReps"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:hint="reps"
+        android:inputType="number"
+        android:background="@drawable/edittext_background"
+        android:layout_marginHorizontal="8dp"
+        android:gravity="center"
+        android:textSize="14sp"/>
+
+    <ImageButton
+        android:id="@+id/btnDeleteSet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_delete"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Delete" />
+
+</LinearLayout>
