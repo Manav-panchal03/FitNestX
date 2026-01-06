@@ -21,7 +21,6 @@ class CreateWorkOutActivity : AppCompatActivity() {
         }
 
         val btnAddExercises = findViewById<MaterialButton>(R.id.btnAddExercise)
-        val spinnerBodyPart = findViewById<Spinner>(R.id.spinnerBodyPart)
 
         btnAddExercises.setOnClickListener {
             val intent = Intent(this, ExerciseSearchActivity::class.java)
