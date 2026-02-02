@@ -16,6 +16,7 @@ import com.google.android.material.chip.Chip
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import android.content.Intent
 
 class ExerciseSearchActivity : AppCompatActivity() {
 
@@ -70,15 +71,37 @@ class ExerciseSearchActivity : AppCompatActivity() {
         })
 
         // 3. "Add" Button Logic (Havy app reference)
+//        btnAddSelected.setOnClickListener {
+//            if (::adapter.isInitialized) {
+//                val selectedList = adapter.getSelectedExercises()
+//                if (selectedList.isNotEmpty()) {
+//                    // Have ahiya tame aa list ne pacha activity ma mokli sako ya Firebase ma save karo
+//                    Toast.makeText(this, "${selectedList.size} Exercises Added!", Toast.LENGTH_SHORT).show()
+//
+//                    // TODO: Save to Firebase or Return to Previous Screen
+//                    finish()
+//                } else {
+//                    Toast.makeText(this, "Select at least one exercise!", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//        }
         btnAddSelected.setOnClickListener {
             if (::adapter.isInitialized) {
                 val selectedList = adapter.getSelectedExercises()
-                if (selectedList.isNotEmpty()) {
-                    // Have ahiya tame aa list ne pacha activity ma mokli sako ya Firebase ma save karo
-                    Toast.makeText(this, "${selectedList.size} Exercises Added!", Toast.LENGTH_SHORT).show()
 
-                    // TODO: Save to Firebase or Return to Previous Screen
+                if (selectedList.isNotEmpty()) {
+                    // --- FIX START ---
+                    // 1. Navi Intent banavo
+                    val resultIntent = Intent()
+
+                    // 2. Data ne ArrayList ma convert kari ne "Selected_list" key sathe muko
+                    // Note: Tamaru ExerciseModel 'Parcelable' hovun joie
+                    resultIntent.putParcelableArrayListExtra("Selected_list", ArrayList(selectedList))
+
+                    // 3. Result set karo ane activity finish karo
+                    setResult(RESULT_OK, resultIntent)
                     finish()
+                    // --- FIX END ---
                 } else {
                     Toast.makeText(this, "Select at least one exercise!", Toast.LENGTH_SHORT).show()
                 }

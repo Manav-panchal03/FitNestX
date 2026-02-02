@@ -34,8 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="+ Add Set"
-            android:textColor="@color/app_theme"
-            app:icon="@android:drawable/ic_input_add" />
+            android:textColor="@color/app_theme" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
