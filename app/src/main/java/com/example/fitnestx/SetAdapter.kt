@@ -7,6 +7,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.RecyclerView
 
 class SetAdapter(private val sets: MutableList<ExerciseSet>) :
@@ -27,6 +28,16 @@ class SetAdapter(private val sets: MutableList<ExerciseSet>) :
         val set = sets[position]
         holder.tvSetNum.text = "${position + 1}"
 
+        holder.etWeight.setText(set.weight)
+        holder.etReps.setText(set.reps)
+
+        holder.etReps.doAfterTextChanged { editable ->
+            set.reps = editable.toString()
+        }
+
+        holder.etWeight.doAfterTextChanged { editable ->
+            set.weight = editable.toString()
+        }
         holder.btnDeleteSets.setOnClickListener {
             if(sets.size > 1){
                 sets.removeAt(position)

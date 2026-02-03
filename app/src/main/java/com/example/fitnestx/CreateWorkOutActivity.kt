@@ -15,6 +15,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class CreateWorkOutActivity : AppCompatActivity() {
     private var selectedList = mutableListOf<LogExercise>()
@@ -62,10 +64,7 @@ class CreateWorkOutActivity : AppCompatActivity() {
         val btnAddExercises = findViewById<MaterialButton>(R.id.btnAddExercise)
         val btnSaveRoutine = findViewById<MaterialButton>(R.id.btnSaveRoutine)
 
-//        val btnAddExercises = findViewById<MaterialButton>(R.id.btnAddExercise)
-
-        // Adapter Setup
-                adapter = SelectedExerciseAdapter(selectedList)
+        adapter = SelectedExerciseAdapter(selectedList)
         rvSelectedExercises.layoutManager = LinearLayoutManager(this)
         rvSelectedExercises.adapter = adapter
 
@@ -76,7 +75,52 @@ class CreateWorkOutActivity : AppCompatActivity() {
 
         btnSaveRoutine.setOnClickListener {
             // Save logic
-            Toast.makeText(this, "Routine Saved!", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this, "Routine Saved!", Toast.LENGTH_SHORT).show()
+
+            val routinename =etRoutine.text.toString().trim()
+
+            if(routinename.isEmpty()){
+                etRoutine.error = "Please enter a routine name"
+                return@setOnClickListener
+            }
+
+            if(selectedList.isEmpty()){
+                Toast.makeText(this, "Please add at least one exercise!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            saveRoutineToFirebase(routinename)
         }
+    }
+
+    private fun saveRoutineToFirebase(routineName : String){
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        if(userId == null){
+            Toast.makeText(this, "Please login first!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // set the reference
+        val databaseRef = FirebaseDatabase.getInstance().getReference("Routines").child(userId)
+        val routineId = databaseRef.push().key ?: " "
+
+        //create a model
+        val newRoutine = RoutineModel(
+            id = routineId,
+            routineName = routineName,
+            exercises = selectedList,
+            createdAt = System.currentTimeMillis()
+        )
+
+        // store data in firebase
+        databaseRef.child(routineId).setValue(newRoutine)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Routine '$routineName' saved! 🦾", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+
     }
 }
