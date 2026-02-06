@@ -10,8 +10,11 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import androidx.dynamicanimation.animation.SpringAnimation
+import androidx.dynamicanimation.animation.SpringForce
 
-class SelectedExerciseAdapter(private val selectedExercises: MutableList<LogExercise>)
+
+class SelectedExerciseAdapter(private val selectedExercises: MutableList<LogExercise> ,private val isReadOnly: Boolean = false)
     : RecyclerView.Adapter<SelectedExerciseAdapter.ViewHolder>() {
     class ViewHolder(view : View) : RecyclerView.ViewHolder(view){
         val tvName = view.findViewById<TextView>(R.id.tvExerciseName)
@@ -35,13 +38,69 @@ class SelectedExerciseAdapter(private val selectedExercises: MutableList<LogExer
         }
 
         //nested adapter for sets
-        val setAdapter = SetAdapter(exercise.sets)
+        val setAdapter = SetAdapter(exercise.sets , isReadOnly)
         holder.rvSets.layoutManager = LinearLayoutManager(holder.itemView.context)
         holder.rvSets.adapter = setAdapter
 
-        holder.btnAddSet.setOnClickListener {
-            exercise.sets.add(ExerciseSet(exercise.sets.size + 1))
-            setAdapter.notifyItemInserted(exercise.sets.size - 1)
+        if(isReadOnly){
+            holder.btnAddSet.visibility = View.GONE
+            //long press delete
+            holder.itemView.setOnLongClickListener { false }
+        }
+        else{
+            // edit mode
+            holder.btnAddSet.visibility = View.VISIBLE
+            holder.itemView.setOnLongClickListener {
+                showDeleteConfirmation(holder.itemView.context, holder.adapterPosition)
+                true
+            }
+//            holder.btnAddSet.setOnClickListener {
+//                exercise.sets.add(ExerciseSet(exercise.sets.size + 1))
+//                setAdapter.notifyItemInserted(exercise.sets.size - 1)
+//                holder.rvSets.scheduleLayoutAnimation()
+//            }
+            holder.btnAddSet.setOnClickListener {
+
+                exercise.sets.add(
+                    ExerciseSet(exercise.sets.size + 1)
+                )
+
+                val pos = exercise.sets.size - 1
+                setAdapter.notifyItemInserted(pos)
+
+                holder.rvSets.post {
+                    val viewHolder =
+                        holder.rvSets.findViewHolderForAdapterPosition(pos)
+
+                    viewHolder?.itemView?.let { itemView ->
+
+                        itemView.scaleX = 0.8f
+                        itemView.scaleY = 0.8f
+
+                        val springX = SpringAnimation(
+                            itemView,
+                            SpringAnimation.SCALE_X,
+                            1f
+                        )
+
+                        val springY = SpringAnimation(
+                            itemView,
+                            SpringAnimation.SCALE_Y,
+                            1f
+                        )
+
+                        springX.spring.stiffness =
+                            SpringForce.STIFFNESS_MEDIUM
+
+                        springY.spring.stiffness =
+                            SpringForce.STIFFNESS_MEDIUM
+
+                        springX.start()
+                        springY.start()
+                    }
+                }
+            }
+
         }
     }
 
@@ -60,5 +119,12 @@ class SelectedExerciseAdapter(private val selectedExercises: MutableList<LogExer
             .setNegativeButton("Cancel", null)
             .show()
     }
+
+    fun updateList(newList: MutableList<LogExercise>) {
+        selectedExercises.clear()
+        selectedExercises.addAll(newList)
+        notifyDataSetChanged()
+    }
+
 }
 

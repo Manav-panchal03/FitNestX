@@ -12,6 +12,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/tvHeaderTitle"
         android:text="Create Routine"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -32,7 +33,7 @@
         android:layout_marginTop="20dp"
         android:text="Add Exercises (+)"
         app:cornerRadius="12dp"
-        android:backgroundTint="@color/app_theme"
+        android:backgroundTint="@color/app_theme2"
         android:textAllCaps="false"/>
 
     <androidx.recyclerview.widget.RecyclerView

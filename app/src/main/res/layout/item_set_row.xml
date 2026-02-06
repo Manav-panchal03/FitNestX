@@ -1,49 +1,50 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:paddingVertical="4dp"
+    android:paddingHorizontal="4dp"
     android:gravity="center_vertical"
-    android:paddingVertical="4dp">
+    android:weightSum="10">
 
     <TextView
         android:id="@+id/tvSetNumber"
-        android:layout_width="30dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1.5"
         android:text="1"
-        android:textStyle="bold"
-        android:gravity="center" />
+        android:gravity="center"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/etWeight"
         android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:layout_weight="1"
-        android:hint="kg"
+        android:layout_height="45dp"
+        android:hint="Kg"
+        android:textSize="15dp"
+        android:layout_weight="3.5"
+        android:layout_marginHorizontal="4dp"
+        android:background="@drawable/bg_set_input"
         android:inputType="numberDecimal"
-        android:background="@drawable/edittext_background"
-        android:layout_marginHorizontal="8dp"
-        android:gravity="center"
-        android:textSize="14sp"/>
+        android:gravity="center" />
 
     <EditText
         android:id="@+id/etReps"
         android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:layout_weight="1"
-        android:hint="reps"
+        android:layout_height="45dp"
+        android:textSize="15dp"
+        android:layout_weight="3.5"
+        android:hint="Reps"
+        android:layout_marginHorizontal="4dp"
+        android:background="@drawable/bg_set_input"
         android:inputType="number"
-        android:background="@drawable/edittext_background"
-        android:layout_marginHorizontal="8dp"
-        android:gravity="center"
-        android:textSize="14sp"/>
+        android:gravity="center" />
 
     <ImageButton
         android:id="@+id/btnDeleteSet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_delete"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1.5"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Delete" />
-
+        android:src="@drawable/deleteicon" />
 </LinearLayout>

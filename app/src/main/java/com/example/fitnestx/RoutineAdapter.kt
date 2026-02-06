@@ -1,5 +1,6 @@
 package com.example.fitnestx
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +33,13 @@ class RoutineAdapter(
         holder.tvSummary.text = if (summary.length > 60) summary.take(60) + "..." else summary
 
         holder.btnStart.setOnClickListener { onStartClick(routine) }
+
+        holder.itemView.setOnClickListener {
+            val intent = Intent(holder.itemView.context, RoutineDetailsActivity::class.java)
+            intent.putExtra("ROUTINE_DATA", routine)
+            holder.itemView.context.startActivity(intent)
+        }
+
     }
 
     override fun getItemCount() = routines.size

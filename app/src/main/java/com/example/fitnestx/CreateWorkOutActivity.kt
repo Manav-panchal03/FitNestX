@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,6 +25,10 @@ class CreateWorkOutActivity : AppCompatActivity() {
     private lateinit var rvSelectedExercises: RecyclerView
     private lateinit var etRoutine: EditText
 
+    // for handle edit mode
+    private var isEditMode = false
+    private var routineIdToEdit: String? = null
+
 
     // 1. Fixed Launcher
     private val getExercises = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -36,11 +41,16 @@ class CreateWorkOutActivity : AppCompatActivity() {
                     val imageUrl = if (!model.images.isNullOrEmpty()) model.images[0] else ""
                     val targetMuscle = if (!model.primaryMuscles.isNullOrEmpty()) model.primaryMuscles[0] else model.bodyPart ?: ""
 
+                    val defualtSets = mutableListOf<ExerciseSet>(
+                        ExerciseSet(setNumber = 1 , weight = "" , reps = "")
+                    )
+
                     selectedList.add(
                         LogExercise(
                             name = model.name ?: "Unknown",
                             image = imageUrl,
-                            target = targetMuscle
+                            target = targetMuscle ,
+                            sets = defualtSets
                         )
                     )
                 }
@@ -63,8 +73,23 @@ class CreateWorkOutActivity : AppCompatActivity() {
         rvSelectedExercises = findViewById(R.id.rvSelectedExercises)
         val btnAddExercises = findViewById<MaterialButton>(R.id.btnAddExercise)
         val btnSaveRoutine = findViewById<MaterialButton>(R.id.btnSaveRoutine)
+        val tvHeaderTitle = findViewById<TextView>(R.id.tvHeaderTitle) // Layout ma name check karjo
 
-        adapter = SelectedExerciseAdapter(selectedList)
+        // 1.  Edit Mode Check
+        // detail screen mathi "EDIT_ROUTINE" pass kervama avse
+        val exisingRoutine = intent.getParcelableExtra<RoutineModel>("EDIT_ROUTINE")
+        if (exisingRoutine != null){
+            isEditMode = true
+            routineIdToEdit = exisingRoutine.id
+            etRoutine.setText(exisingRoutine.routineName) //Routine name set thase
+            selectedList.clear()
+            selectedList.addAll(exisingRoutine.exercises) // purani exercises load karo
+            btnSaveRoutine.text = "Update Routine"
+            tvHeaderTitle.text = "Edit Routine"
+        }
+
+        // 2. adapter setup
+        adapter = SelectedExerciseAdapter(selectedList , false)
         rvSelectedExercises.layoutManager = LinearLayoutManager(this)
         rvSelectedExercises.adapter = adapter
 
@@ -75,21 +100,40 @@ class CreateWorkOutActivity : AppCompatActivity() {
 
         btnSaveRoutine.setOnClickListener {
             // Save logic
-            // Toast.makeText(this, "Routine Saved!", Toast.LENGTH_SHORT).show()
-
             val routinename =etRoutine.text.toString().trim()
 
+            // 1. validate routine name
             if(routinename.isEmpty()){
                 etRoutine.error = "Please enter a routine name"
+                etRoutine.requestFocus()
                 return@setOnClickListener
             }
 
+            // 2. validate if at least one exercise is selected
             if(selectedList.isEmpty()){
                 Toast.makeText(this, "Please add at least one exercise!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            saveRoutineToFirebase(routinename)
+            // 3. validation for every reps and weight for each exercises
+            var isValid = true
+            for (exercises in selectedList){
+                for(set in exercises.sets){
+                    if(set.weight.trim().isEmpty() || set.reps.trim().isEmpty()){
+                        isValid = false
+                        break
+                    }
+                }
+                if(!isValid){
+                    Toast.makeText(this, "Please fill Weight & Reps for ${exercises.name}", Toast.LENGTH_SHORT).show()
+                    break
+                }
+            }
+
+            // only save if everything is valid
+            if(isValid){
+                saveRoutineToFirebase(routinename)
+            }
         }
     }
 
@@ -102,7 +146,7 @@ class CreateWorkOutActivity : AppCompatActivity() {
 
         // set the reference
         val databaseRef = FirebaseDatabase.getInstance().getReference("Routines").child(userId)
-        val routineId = databaseRef.push().key ?: " "
+        val routineId =  if(isEditMode) routineIdToEdit!! else databaseRef.push().key ?: return
 
         //create a model
         val newRoutine = RoutineModel(
@@ -115,7 +159,8 @@ class CreateWorkOutActivity : AppCompatActivity() {
         // store data in firebase
         databaseRef.child(routineId).setValue(newRoutine)
             .addOnSuccessListener {
-                Toast.makeText(this, "Routine '$routineName' saved! 🦾", Toast.LENGTH_SHORT).show()
+                val message = if(isEditMode) "Routine '$routineName' updated!" else "Routine '$routineName' saved!"
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
                 finish()
             }
             .addOnFailureListener { e ->
