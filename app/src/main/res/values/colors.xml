@@ -12,5 +12,8 @@
     <color name="app_theme">#E3342F</color>
     <color name="app_theme2">#0085FF</color>
     <color name="green">#4CAF50</color>
+    <color name="primary">#2563EB</color>
+    <color name="bg">#F7F8FA</color>
+
 
 </resources>

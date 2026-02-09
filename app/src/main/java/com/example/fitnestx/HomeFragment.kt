@@ -81,7 +81,8 @@ class HomeFragment : Fragment() , SensorEventListener {
         val tvWelcome = view.findViewById<TextView>(R.id.tvWelcome)
         val tvBmiValue = view.findViewById<TextView>(R.id.tvBmiValue)
         val tvBmiCategory = view.findViewById<TextView>(R.id.tvBmiCategory)
-        val ivBmiStatus = view.findViewById<ImageView>(R.id.ivBmiStatus)
+        val tvDate = view.findViewById<TextView>(R.id.tvCurrentDate)
+        val tvTime = view.findViewById<TextView>(R.id.tvCurrentTime)
         val tvUserGoal = view.findViewById<TextView>(R.id.tvUserGoal)
         val waterBar = view.findViewById<ProgressBar>(R.id.waterProgressBar)
         val tvWater = view.findViewById<TextView>(R.id.tvWaterStats)
@@ -96,6 +97,8 @@ class HomeFragment : Fragment() , SensorEventListener {
         stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
 
         checkStepPermission()
+        updateDateTime(tvDate, tvTime)
+
 
         //Fetching data from firebase
         dbRef.addValueEventListener(object : ValueEventListener{
@@ -111,7 +114,6 @@ class HomeFragment : Fragment() , SensorEventListener {
                         tvBmiValue.text = String.format("%.2f", bmi)
                         val category = getBmiCategory(bmi)
                         tvBmiCategory.text = category
-                        updateBmiImage(category , ivBmiStatus)
                     }
                 }
             }
@@ -213,14 +215,17 @@ class HomeFragment : Fragment() , SensorEventListener {
         }
 
     }
-    private fun updateBmiImage(category: String, imageView: ImageView) {
-        when (category) {
-            "Underweight" -> imageView.setImageResource(R.drawable.underweight)
-            "Normal Weight" -> imageView.setImageResource(R.drawable.normalweight)
-            "Overweight" -> imageView.setImageResource(R.drawable.overweight)
-            "Obese" -> imageView.setImageResource(R.drawable.obese)
-        }
+    private fun updateDateTime(tvDate: TextView, tvTime: TextView) {
+        val dateFormat = SimpleDateFormat("EEE, dd MMM yyyy", Locale.getDefault())
+        val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+
+        val currentDate = dateFormat.format(Date())
+        val currentTime = timeFormat.format(Date())
+
+        tvDate.text = currentDate
+        tvTime.text = currentTime
     }
+
 
     private fun showLogDialog(title: String, targetRef: DatabaseReference, options: Array<String>) {
         AlertDialog.Builder(requireContext())
