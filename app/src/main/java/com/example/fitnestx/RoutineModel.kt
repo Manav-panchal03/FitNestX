@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class RoutineModel(
-    val id: String = "",              // Firebase ni Push ID store karva mate
+    var id: String = "",              // Firebase ni Push ID store karva mate
     val routineName: String = "",      // Routine nu name (e.g., Chest Day)
     val exercises: List<LogExercise> = emptyList(), // Badhi selected exercises
     val createdAt: Long = 0            // Kyare banavyu hatu e time
