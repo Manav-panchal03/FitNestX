@@ -62,4 +62,7 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
+
+        // Check if this is present. If not, add it and Sync Project.
+        implementation("com.google.android.material:material:1.11.0")
 }
