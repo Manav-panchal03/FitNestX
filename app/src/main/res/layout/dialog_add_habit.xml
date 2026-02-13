@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bottom_sheet_background">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add New Habit"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/etHabitName"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Habit Name (e.g. Meditation)"
+        android:background="@drawable/edit_text_bg"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:inputType="textCapSentences"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <EditText
+            android:id="@+id/etGoalValue"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:hint="Goal (e.g. 5)"
+            android:background="@drawable/edit_text_bg"
+            android:padding="12dp"
+            android:inputType="number"/>
+
+        <EditText
+            android:id="@+id/etUnit"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:hint="Unit (e.g. Mins)"
+            android:background="@drawable/edit_text_bg"
+            android:padding="12dp"
+            android:inputType="text"/>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveHabit"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginTop="20dp"
+        android:text="Create Habit"
+        app:cornerRadius="14dp"
+        android:backgroundTint="#92A3FD"/>
+
+</LinearLayout>
