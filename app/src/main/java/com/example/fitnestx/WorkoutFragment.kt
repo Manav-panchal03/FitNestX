@@ -95,12 +95,6 @@ class WorkoutFragment : Fragment() {
 
                 routineAdapter.notifyDataSetChanged()
 
-                // Debug check
-//                Toast.makeText(
-//                    requireContext(),
-//                    "Fetched: ${routineList.size} routines",
-//                    Toast.LENGTH_SHORT
-//                ).show()
             }
 
             override fun onCancelled(error: DatabaseError) {
