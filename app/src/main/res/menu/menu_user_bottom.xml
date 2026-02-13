@@ -3,13 +3,13 @@
 
     <item
         android:id="@+id/nav_home"
-        android:iconTint="#E3342F"
+        android:iconTint="@color/app_theme2"
         android:title="Home"
         android:icon="@drawable/home" />
 
     <item
         android:id="@+id/nav_workouts"
-        android:iconTint="#E3342F"
+        android:iconTint="@color/app_theme2"
         android:title="Workouts"
         android:icon="@drawable/dumbell" />
 
@@ -17,12 +17,12 @@
         android:id="@+id/nav_habits"
         android:title="Habits"
         android:icon="@drawable/habits"
-        android:iconTint="#E3342F"/>
+        android:iconTint="@color/app_theme2"/>
 
     <item
         android:id="@+id/nav_profile"
         android:title="Profile"
         android:icon="@drawable/profile"
-        android:iconTint="#E3342F"/>
+        android:iconTint="@color/app_theme2"/>
 
 </menu>

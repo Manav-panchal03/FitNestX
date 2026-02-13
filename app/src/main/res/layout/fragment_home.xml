@@ -124,7 +124,7 @@
                 <LinearLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_weight="1.5"
                     android:orientation="vertical"
                     android:gravity="center">
 
@@ -149,7 +149,7 @@
                 <LinearLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_weight="1.5"
                     android:orientation="vertical"
                     android:gravity="center">
 
@@ -172,29 +172,29 @@
 
                 <!-- CALORIES -->
 
-                <LinearLayout
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
+<!--                <LinearLayout-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:gravity="center">-->
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Calories"
-                        android:textColor="#888"
-                        android:textSize="12sp"/>
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="Calories"-->
+<!--                        android:textColor="#888"-->
+<!--                        android:textSize="12sp"/>-->
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/tvCaloriesBurnt"
-                        android:text="0 kcal"
-                        android:textColor="#F44336"
-                        android:textStyle="bold"/>
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:id="@+id/tvCaloriesBurnt"-->
+<!--                        android:text="0 kcal"-->
+<!--                        android:textColor="#F44336"-->
+<!--                        android:textStyle="bold"/>-->
 
-                </LinearLayout>
+<!--                </LinearLayout>-->
 
             </LinearLayout>
 

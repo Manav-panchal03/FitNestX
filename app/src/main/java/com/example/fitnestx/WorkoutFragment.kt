@@ -37,20 +37,33 @@ class WorkoutFragment : Fragment() {
         val btnCreateRoutine = view.findViewById<MaterialButton>(R.id.btnCreateRoutine)
         rvRoutines = view.findViewById<RecyclerView>(R.id.rvMyRoutines)
 
-        // 2. RecyclerView Setup
-        rvRoutines.layoutManager = LinearLayoutManager(requireContext())
-        routineAdapter = RoutineAdapter(routineList){selectedRoutine ->
-            // user press start routine button
-            Toast.makeText(requireContext(), "Starting: ${selectedRoutine.routineName}", Toast.LENGTH_SHORT).show()
-            // -------------- ahiya new LogWorkoutActivity chalu thase ---------------------------- //
-        }
-        rvRoutines.adapter = routineAdapter
-
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if(userId != null){
             database = FirebaseDatabase.getInstance().getReference("Routines").child(userId)
-           fetchRoutines()
+
+            // 2. RecyclerView Setup
+            rvRoutines.layoutManager = LinearLayoutManager(requireContext())
+
+            routineAdapter = RoutineAdapter(
+                routineList,
+                onStartClick = { selectedRoutine ->
+                    Toast.makeText(
+                        requireContext(),
+                        "Starting: ${selectedRoutine.routineName}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    // TODO: Start LogWorkoutActivity
+                },
+                dbRef = database   // 👈 important
+            )
+
+            rvRoutines.adapter = routineAdapter
+
+            fetchRoutines()
         }
+        // 2. RecyclerView Setup
+
 
         btnCreateRoutine.setOnClickListener {
             val intent = Intent(requireContext() , CreateWorkOutActivity::class.java)
@@ -58,23 +71,40 @@ class WorkoutFragment : Fragment() {
         }
     }
 
-    private fun fetchRoutines(){
-        database.addValueEventListener(object : ValueEventListener{
+    private fun fetchRoutines() {
+
+        database.addValueEventListener(object : ValueEventListener {
+
             override fun onDataChange(snapshot: DataSnapshot) {
+
                 routineList.clear()
-                for(postSnapshot in snapshot.children){
-                    val routine = postSnapshot.getValue(RoutineModel::class.java)
+
+                for (postSnapshot in snapshot.children) {
+
+                    val routine =
+                        postSnapshot.getValue(RoutineModel::class.java)
+
                     if (routine != null) {
+
+                        // 🔥 VERY IMPORTANT FIX
+                        routine.id = postSnapshot.key ?: ""
+
                         routineList.add(routine)
                     }
                 }
+
                 routineAdapter.notifyDataSetChanged()
+
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(requireContext(), "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    error.message,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-
         })
     }
+
 }
