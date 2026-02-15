@@ -144,11 +144,5 @@ class RegisterFragment : Fragment() {
         }
         dialog.show()
 
-//        dialogView.postDelayed({
-//            if(dialog.isShowing){
-//                dialog.dismiss()
-//                parentFragmentManager.popBackStack()
-//            }
-//        }, 1500) // 1.5 sec
     }
 }

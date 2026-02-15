@@ -11,6 +11,8 @@ data class AppUsers(
     val gender: String? = null,
     val height: Double? = null, // in cm
     val weight: Double? = null, // in kg
+    var startingWeight: Double? = 0.0,
+    var goalWeight: Double? = 0.0,
 
     // Personal Details
     val bio: String? = "Fitness Enthusiast",

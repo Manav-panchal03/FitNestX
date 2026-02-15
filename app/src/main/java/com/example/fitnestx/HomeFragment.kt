@@ -47,6 +47,13 @@ class HomeFragment : Fragment() , SensorEventListener {
     private lateinit var dbSteps : DatabaseReference
     private lateinit var todayDate : String
 
+    private lateinit var dbWeightHistory: DatabaseReference
+
+    private var startingWeight: Double = 0.0
+    private var goalWeight: Double = 0.0
+    private var currentWeight = 0.0
+
+
 
     //sensor variables
     private var sensorManager : SensorManager? = null
@@ -76,7 +83,7 @@ class HomeFragment : Fragment() , SensorEventListener {
         dbWater = FirebaseDatabase.getInstance().getReference("WaterIntake").child(uid).child(todayDate)
         dbSleep = FirebaseDatabase.getInstance().getReference("SleepLog").child(uid).child(todayDate)
         dbSteps = FirebaseDatabase.getInstance().getReference("Steps").child(uid).child(todayDate)
-
+        dbWeightHistory = FirebaseDatabase.getInstance().getReference("WeightHistory").child(uid)
         //views")
         val tvWelcome = view.findViewById<TextView>(R.id.tvWelcome)
         val tvBmiValue = view.findViewById<TextView>(R.id.tvBmiValue)
@@ -90,6 +97,8 @@ class HomeFragment : Fragment() , SensorEventListener {
         val btnLogWater = view.findViewById<Button>(R.id.btnLogWater)
         val btnLogSleep = view.findViewById<Button>(R.id.btnLogSleep)
         tvSteps = view.findViewById<TextView>(R.id.tvSteps)
+        val weightProgressBar = view.findViewById<ProgressBar>(R.id.weightProgressBar)
+        val tvWeightProgress = view.findViewById<TextView>(R.id.tvWeightProgress)
 
 
         //sensor init
@@ -115,6 +124,17 @@ class HomeFragment : Fragment() , SensorEventListener {
                         val category = getBmiCategory(bmi)
                         tvBmiCategory.text = category
                     }
+
+                    startingWeight = (user.startingWeight ?: user.weight)!!
+                    goalWeight = user.goalWeight ?: 0.0
+                    currentWeight = user.weight!!
+
+                    saveWeightHistory(currentWeight)
+
+                    val progress = calculateWeightProgress()
+                    weightProgressBar.progress = progress
+                    tvWeightProgress.text = "$progress%"
+
                 }
             }
 
@@ -271,5 +291,27 @@ class HomeFragment : Fragment() , SensorEventListener {
             }
         })
     }
+
+    private fun saveWeightHistory(weight: Double) {
+
+        val entry = WeightHistoryModel(
+            weight,
+            System.currentTimeMillis()
+        )
+
+        dbWeightHistory.push().setValue(entry)
+    }
+
+    private fun calculateWeightProgress(): Int {
+
+        if (goalWeight <= startingWeight) return 0
+
+        val progress =
+            ((currentWeight - startingWeight) /
+                    (goalWeight - startingWeight)) * 100
+
+        return progress.coerceIn(0.0, 100.0).toInt()
+    }
+
 
 }
