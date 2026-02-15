@@ -16,6 +16,10 @@
         android:theme="@style/Theme.FitNestX"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".WeightProgressGraphActivity"
+            android:exported="false"
+            android:theme="@style/Theme.FitNestX" />
+        <activity
             android:name=".RoutineDetailsActivity"
             android:exported="false" />
         <activity

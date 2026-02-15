@@ -2,6 +2,7 @@
 .gradle
 .idea/
 /local.properties
+build/
 .idea/
 /.idea/caches
 /.idea/libraries
@@ -15,3 +16,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+emulator/
+sources/
+android-*/

@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    ```
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="22dp">
 
-        <!-- HEADER -->
+        <!-- USER NAME -->
 
         <TextView
             android:id="@+id/tvWelcome"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hello 👋"
+            android:text="Username"
             android:textSize="28sp"
             android:textStyle="bold"
+            android:textColor="@color/app_theme"
             android:layout_marginBottom="14dp"/>
 
         <!-- BMI CARD -->
@@ -27,17 +30,14 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
             app:cardCornerRadius="26dp"
-            app:cardElevation="6dp"
-            app:cardBackgroundColor="@android:color/white">
+            app:cardElevation="6dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="22dp"
-                android:gravity="center_vertical"
                 android:background="@color/app_theme2">
 
                 <LinearLayout
@@ -50,7 +50,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="BMI"
-                        android:textSize="13sp"
                         android:textColor="@android:color/white"
                         android:textStyle="bold"/>
 
@@ -68,8 +67,7 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/tvBmiCategory"
                         android:text="Loading..."
-                        android:textColor="@color/white"/>
-
+                        android:textColor="@android:color/white"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -79,86 +77,72 @@
                     android:gravity="end">
 
                     <TextView
-                        android:id="@+id/tvCurrentDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Wed, Feb 6"
+                        android:id="@+id/tvCurrentDate"
                         android:textColor="@android:color/white"
-                        android:textSize="14sp"
                         android:textStyle="bold"/>
 
                     <TextView
-                        android:id="@+id/tvCurrentTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="10:45 AM"
-                        android:textColor="#E3F2FD"
+                        android:id="@+id/tvCurrentTime"
                         android:textSize="22sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"/>
                 </LinearLayout>
 
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- QUICK STATS CARD -->
+        <!-- QUICK STATS -->
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardCornerRadius="22dp"
-            android:background="@android:color/white"
-            app:cardElevation="4dp">
+            app:cardCornerRadius="22dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:padding="18dp"
-                android:backgroundTint="@android:color/white"
-                android:weightSum="3">
-
-                <!-- GOAL -->
+                android:orientation="horizontal"
+                android:weightSum="2">
 
                 <LinearLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    android:layout_weight="1.5"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Goal"
-                        android:textColor="#888"
-                        android:textSize="12sp"/>
+                        android:textColor="#888"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/tvUserGoal"
-                        android:text="--"
                         android:textStyle="bold"/>
-
                 </LinearLayout>
-
-                <!-- STEPS -->
 
                 <LinearLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    android:layout_weight="1.5"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Steps"
-                        android:textColor="#888"
-                        android:textSize="12sp"/>
+                        android:textColor="#888"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -167,13 +151,13 @@
                         android:text="0"
                         android:textColor="@color/green"
                         android:textStyle="bold"/>
-
                 </LinearLayout>
-
 
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- WEIGHT PROGRESS -->
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -182,39 +166,69 @@
             app:cardCornerRadius="18dp">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:id="@+id/cardWeightProgress"
                 android:padding="18dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Weight Progress"
                     android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/tvCurrentWeight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="60 kg"
+                    android:textSize="13sp"
+                    android:textStyle="bold"/>
+
 
                 <ProgressBar
                     android:id="@+id/weightProgressBar"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="20dp"
+                    android:layout_height="18dp"
                     android:max="100"
                     android:layout_marginTop="8dp"/>
 
                 <TextView
-                    android:id="@+id/tvWeightProgress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:id="@+id/tvWeightProgress"
                     android:text="0%"
-                    android:layout_marginTop="6dp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:layout_marginTop="6dp"/>
+
+                <!-- MOTIVATION MESSAGE -->
+
+                <TextView
+                    android:id="@+id/tvMotivation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Start strong 💪"
+                    android:textColor="@color/app_theme"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="3dp"
+                    android:layout_marginTop="8dp"/>
+                <com.google.android.material.button.MaterialButton
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:id="@+id/btnLogWeight"
+                    android:text="Log Weight"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="@color/app_theme2"/>
+
 
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
-
-        <!-- HABITS TITLE -->
+        <!-- DAILY HABITS TITLE -->
 
         <TextView
             android:layout_width="wrap_content"
@@ -225,7 +239,7 @@
             android:textSize="18sp"
             android:layout_marginTop="22dp"/>
 
-        <!-- HABITS CARDS -->
+        <!-- WATER CARD -->
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -234,27 +248,25 @@
             app:cardCornerRadius="18dp">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:padding="18dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <ProgressBar
                     android:id="@+id/waterProgressBar"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:progressDrawable="@drawable/circular_progress_bar"
-                    android:max="100"
-                    android:progress="40"/>
+                    android:max="100"/>
 
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="14dp"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -266,23 +278,22 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/tvWaterStats"
-                        android:text="1.5 / 3 L"
+                        android:text="0 / 3 L"
                         android:textColor="#2196F3"/>
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnLogWater"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnLogWater"
                     android:text="Log"
                     app:cornerRadius="12dp"
                     app:backgroundTint="@color/app_theme2"/>
-
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Sleep -->
+        <!-- SLEEP CARD -->
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -291,11 +302,11 @@
             app:cardCornerRadius="18dp">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:padding="18dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <ImageView
                     android:layout_width="48dp"
@@ -303,11 +314,11 @@
                     android:src="@drawable/sleep"/>
 
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="14dp"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -319,18 +330,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/tvSleepStats"
-                        android:text="7.5 / 8 hrs"
+                        android:text="0 / 7 hrs"
                         android:textColor="#2196F3"/>
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnLogSleep"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnLogSleep"
                     android:text="Log"
                     app:cornerRadius="12dp"
                     app:backgroundTint="@color/app_theme2"/>
-
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>

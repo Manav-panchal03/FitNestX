@@ -2,6 +2,7 @@ package com.example.fitnestx
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -36,6 +37,7 @@ import org.w3c.dom.Text
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.jvm.java
 
 
 class HomeFragment : Fragment() , SensorEventListener {
@@ -45,14 +47,13 @@ class HomeFragment : Fragment() , SensorEventListener {
     private lateinit var dbWater : DatabaseReference
     private lateinit var dbSleep : DatabaseReference
     private lateinit var dbSteps : DatabaseReference
-    private lateinit var todayDate : String
-
     private lateinit var dbWeightHistory: DatabaseReference
+
+    private lateinit var todayDate : String
 
     private var startingWeight: Double = 0.0
     private var goalWeight: Double = 0.0
     private var currentWeight = 0.0
-
 
 
     //sensor variables
@@ -99,6 +100,11 @@ class HomeFragment : Fragment() , SensorEventListener {
         tvSteps = view.findViewById<TextView>(R.id.tvSteps)
         val weightProgressBar = view.findViewById<ProgressBar>(R.id.weightProgressBar)
         val tvWeightProgress = view.findViewById<TextView>(R.id.tvWeightProgress)
+        val tvMotivation = view.findViewById<TextView>(R.id.tvMotivation)
+        val btnLogWeight = view.findViewById<Button>(R.id.btnLogWeight)
+        val tvCurrentWeight = view.findViewById<TextView>(R.id.tvCurrentWeight)
+        val cardWeight = view.findViewById<View>(R.id.cardWeightProgress)
+
 
 
         //sensor init
@@ -114,7 +120,7 @@ class HomeFragment : Fragment() , SensorEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if(snapshot.exists()){
                     val user = snapshot.getValue(AppUsers::class.java) ?: return
-                    tvWelcome.text = "Hello , ${user.name}!"
+                    tvWelcome.text = "${user.name}!"
                     tvUserGoal.text = user.goalType ?: "No Goal Set"
                     //bmi calculation
                     if(user.height != null && user.weight != null && user.height > 0){
@@ -125,16 +131,31 @@ class HomeFragment : Fragment() , SensorEventListener {
                         tvBmiCategory.text = category
                     }
 
-                    startingWeight = (user.startingWeight ?: user.weight)!!
+                    currentWeight = user.weight ?: 0.0
                     goalWeight = user.goalWeight ?: 0.0
-                    currentWeight = user.weight!!
+                    tvCurrentWeight.text = String.format("%.1f kg", currentWeight)
 
-                    saveWeightHistory(currentWeight)
+
+                    // Set starting weight only once
+                    if (user.startingWeight == null || user.startingWeight == 0.0) {
+
+                        startingWeight = currentWeight
+
+                        dbRef.child("startingWeight").setValue(currentWeight)
+
+                    } else {
+                        startingWeight = user.startingWeight!!
+                    }
+
+//                    if (currentWeight > 0) {
+//                        saveWeightHistory(currentWeight)
+//                    }
 
                     val progress = calculateWeightProgress()
                     weightProgressBar.progress = progress
                     tvWeightProgress.text = "$progress%"
 
+                    showMotivation(progress , tvMotivation)
                 }
             }
 
@@ -179,6 +200,24 @@ class HomeFragment : Fragment() , SensorEventListener {
 
         btnLogSleep.setOnClickListener {
             showLogDialog("Sleep" , dbSleep , arrayOf("Add 1 Hour" , "Add 2 Hours" , "Custom Amount" , "Reset"))
+        }
+        btnLogWeight.setOnClickListener {
+            showWeightDialog()
+        }
+        updateWeightButtonState(btnLogWeight)
+
+        cardWeight.setOnClickListener {
+            startActivity(
+                Intent(requireContext(), WeightProgressGraphActivity::class.java)
+            )
+            cardWeight.animate()
+                .scaleX(0.95f)
+                .scaleY(0.95f)
+                .setDuration(100)
+                .withEndAction {
+                    cardWeight.scaleX = 1f
+                    cardWeight.scaleY = 1f
+                }
         }
     }
     //sensor logic
@@ -294,23 +333,150 @@ class HomeFragment : Fragment() , SensorEventListener {
 
     private fun saveWeightHistory(weight: Double) {
 
+        val todayKey = todayDate // yyyy-MM-dd
+
         val entry = WeightHistoryModel(
-            weight,
-            System.currentTimeMillis()
+            weight = weight,
+            timestamp = System.currentTimeMillis()
         )
 
-        dbWeightHistory.push().setValue(entry)
+        dbWeightHistory.child(todayKey).setValue(entry)
     }
+
+
 
     private fun calculateWeightProgress(): Int {
 
-        if (goalWeight <= startingWeight) return 0
+        if (goalWeight == 0.0 || startingWeight == goalWeight) return 0
 
-        val progress =
-            ((currentWeight - startingWeight) /
-                    (goalWeight - startingWeight)) * 100
+        val progress = if (goalWeight > startingWeight) {
+            // Muscle gain
+            (currentWeight - startingWeight) /
+                    (goalWeight - startingWeight)
+        } else {
+            // Fat loss
+            (startingWeight - currentWeight) /
+                    (startingWeight - goalWeight)
+        }
 
-        return progress.coerceIn(0.0, 100.0).toInt()
+        return (progress * 100)
+            .coerceIn(0.0, 100.0)
+            .toInt()
+    }
+
+    private fun showMotivation(progress: Int, tv: TextView) {
+
+        val message = when {
+
+            progress == 0 ->
+                "Let's start your journey 🚀"
+
+            progress in 1..25 ->
+                "Good start! Keep pushing 💪"
+
+            progress in 26..50 ->
+                "Halfway energy building 🔥"
+
+            progress in 51..75 ->
+                "Strong progress! Don't stop 🏋️"
+
+            progress in 76..99 ->
+                "Almost there! Finish strong 👑"
+
+            progress >= 100 ->
+                "GOAL ACHIEVED! 🎉"
+
+            else ->
+                "Stay consistent 💯"
+        }
+
+        tv.text = message
+    }
+
+    private fun showWeightDialog() {
+
+        dbWeightHistory.child(todayDate)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    if (snapshot.exists()) {
+                        updateWeightButtonState(
+                            requireView().findViewById(R.id.btnLogWeight)
+                        )
+                        return
+                    }
+
+
+                    val edit = EditText(requireContext())
+                    edit.inputType =
+                        InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+                    edit.hint = "Enter weight (kg)"
+
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Log Weight")
+                        .setView(edit)
+                        .setPositiveButton("Save") { _, _ ->
+
+                            val weight =
+                                edit.text.toString().toDoubleOrNull()
+
+                            if (weight != null && weight > 0) {
+
+                                dbRef.child("weight").setValue(weight)
+                                saveWeightHistory(weight)
+
+                                Toast.makeText(
+                                    context,
+                                    "Weight updated!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                                updateWeightButtonState(
+                                    requireView().findViewById(R.id.btnLogWeight)
+                                )
+
+                            }
+                        }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
+    }
+
+    private fun updateWeightButtonState(btn: Button) {
+
+        dbWeightHistory.child(todayDate)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    if (snapshot.exists()) {
+
+                        // Already logged today
+                        btn.text = "Logged Today ✓"
+                        btn.setTextColor(
+                            ContextCompat.getColor(requireContext() , R.color.app_theme2)
+                        )
+                        btn.isEnabled = false
+                        btn.setBackgroundColor(
+                            ContextCompat.getColor(requireContext() , android.R.color.transparent)
+                        )
+                        btn.alpha = 0.6f
+
+                    } else {
+
+                        // Not logged
+                        btn.text = "Log Weight"
+                        btn.isEnabled = true
+                        btn.alpha = 1f
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
     }
 
 

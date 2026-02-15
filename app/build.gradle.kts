@@ -37,6 +37,9 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 
@@ -47,6 +50,8 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.auth)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -62,7 +67,8 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
+    // Check if this is present. If not, add it and Sync Project.
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
-        // Check if this is present. If not, add it and Sync Project.
-        implementation("com.google.android.material:material:1.11.0")
 }
