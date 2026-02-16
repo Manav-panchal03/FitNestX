@@ -16,6 +16,9 @@
         android:theme="@style/Theme.FitNestX"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".WorkoutSessionActivity"
+            android:exported="false" />
+        <activity
             android:name=".WeightProgressGraphActivity"
             android:exported="false"
             android:theme="@style/Theme.FitNestX" />

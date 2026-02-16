@@ -53,9 +53,15 @@ class WorkoutFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    // TODO: Start LogWorkoutActivity
+                    val intent = Intent(
+                        requireContext(),
+                        WorkoutSessionActivity::class.java
+                    )
+
+                    intent.putExtra("ROUTINE_DATA", selectedRoutine)
+                    startActivity(intent)
                 },
-                dbRef = database   // 👈 important
+                dbRef = database   // important
             )
 
             rvRoutines.adapter = routineAdapter
@@ -86,7 +92,7 @@ class WorkoutFragment : Fragment() {
 
                     if (routine != null) {
 
-                        // 🔥 VERY IMPORTANT FIX
+                        // VERY IMPORTANT FIX
                         routine.id = postSnapshot.key ?: ""
 
                         routineList.add(routine)

@@ -258,9 +258,12 @@ class HomeFragment : Fragment() , SensorEventListener {
             sensorManager?.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI)
         }
     }
-
     override fun onPause() {
         super.onPause()
+        sensorManager?.unregisterListener(this)
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
         sensorManager?.unregisterListener(this)
     }
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
@@ -395,18 +398,20 @@ class HomeFragment : Fragment() , SensorEventListener {
 
     private fun showWeightDialog() {
 
+        if (!isAdded || view == null) return
+
         dbWeightHistory.child(todayDate)
             .addListenerForSingleValueEvent(object : ValueEventListener {
 
                 override fun onDataChange(snapshot: DataSnapshot) {
 
+                    if (!isAdded || view == null) return
+
                     if (snapshot.exists()) {
-                        updateWeightButtonState(
-                            requireView().findViewById(R.id.btnLogWeight)
-                        )
+                        view?.findViewById<Button>(R.id.btnLogWeight)
+                            ?.let { updateWeightButtonState(it) }
                         return
                     }
-
 
                     val edit = EditText(requireContext())
                     edit.inputType =
@@ -418,8 +423,7 @@ class HomeFragment : Fragment() , SensorEventListener {
                         .setView(edit)
                         .setPositiveButton("Save") { _, _ ->
 
-                            val weight =
-                                edit.text.toString().toDoubleOrNull()
+                            val weight = edit.text.toString().toDoubleOrNull()
 
                             if (weight != null && weight > 0) {
 
@@ -432,10 +436,8 @@ class HomeFragment : Fragment() , SensorEventListener {
                                     Toast.LENGTH_SHORT
                                 ).show()
 
-                                updateWeightButtonState(
-                                    requireView().findViewById(R.id.btnLogWeight)
-                                )
-
+                                view?.findViewById<Button>(R.id.btnLogWeight)
+                                    ?.let { updateWeightButtonState(it) }
                             }
                         }
                         .setNegativeButton("Cancel", null)
@@ -446,6 +448,7 @@ class HomeFragment : Fragment() , SensorEventListener {
             })
     }
 
+
     private fun updateWeightButtonState(btn: Button) {
 
         dbWeightHistory.child(todayDate)
@@ -453,31 +456,43 @@ class HomeFragment : Fragment() , SensorEventListener {
 
                 override fun onDataChange(snapshot: DataSnapshot) {
 
-                    if (snapshot.exists()) {
+                    // CRASH FIX — fragment attached check
+                    if (!isAdded || view == null) return
 
-                        // Already logged today
-                        btn.text = "Logged Today ✓"
-                        btn.setTextColor(
-                            ContextCompat.getColor(requireContext() , R.color.app_theme2)
-                        )
-                        btn.isEnabled = false
-                        btn.setBackgroundColor(
-                            ContextCompat.getColor(requireContext() , android.R.color.transparent)
-                        )
-                        btn.alpha = 0.6f
+                    activity?.runOnUiThread {
 
-                    } else {
+                        if (!isAdded) return@runOnUiThread
 
-                        // Not logged
-                        btn.text = "Log Weight"
-                        btn.isEnabled = true
-                        btn.alpha = 1f
+                        if (snapshot.exists()) {
+
+                            btn.text = "Logged Today ✓"
+                            btn.isEnabled = false
+                            btn.alpha = 0.6f
+
+                            context?.let {
+                                btn.setTextColor(
+                                    ContextCompat.getColor(it, R.color.app_theme2)
+                                )
+                            }
+
+                            btn.setBackgroundColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    android.R.color.transparent
+                                )
+                            )
+
+                        } else {
+
+                            btn.text = "Log Weight"
+                            btn.isEnabled = true
+                            btn.alpha = 1f
+                        }
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {}
             })
     }
-
 
 }

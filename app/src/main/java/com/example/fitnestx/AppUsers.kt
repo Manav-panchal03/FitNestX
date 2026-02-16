@@ -23,9 +23,9 @@ data class AppUsers(
     val fitnessLevel: String? = "Beginner", // e.g., "Beginner", "Intermediate"
 
     // Membership & Subscription (Nava suggest karyela tables mujab)
-    val membershipPlanId: String? = "free_plan",
-    val membershipStatus: String? = "Active", // Active, Expired, Pending
-    val membershipExpiryDate: String? = null,
+//    val membershipPlanId: String? = "free_plan",
+//    val membershipStatus: String? = "Active", // Active, Expired, Pending
+//    val membershipExpiryDate: String? = null,
 
     // Internal App Flow Control
     @field:JvmField
