@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     android:fillViewport="true">
 
     <LinearLayout
@@ -83,7 +82,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Body Mass Index (BMI)"
-                    android:textColor="@color/white"
+                    android:textColor="@color/black"
                     android:textStyle="bold" />
 
                 <TextView
@@ -92,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/tvBMITitle"
                     android:text="You have a normal weight"
-                    android:textColor="@color/white"
+                    android:textColor="@color/black"
                     android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -104,7 +103,7 @@
                     android:layout_centerVertical="true"
                     android:text="View More"
                     android:textSize="10sp"
-                    app:backgroundTint="#9DCEFF"
+                    app:backgroundTint="@color/app_theme2"
                     app:cornerRadius="50dp" />
             </RelativeLayout>
         </com.google.android.material.card.MaterialCardView>

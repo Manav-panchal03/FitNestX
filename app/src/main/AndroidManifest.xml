@@ -16,6 +16,12 @@
         android:theme="@style/Theme.FitNestX"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ManageHabitActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BMIInfoActivity"
+            android:exported="false" />
+        <activity
             android:name=".WorkoutSessionActivity"
             android:exported="false" />
         <activity

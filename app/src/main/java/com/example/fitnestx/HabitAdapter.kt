@@ -3,67 +3,74 @@ package com.example.fitnestx
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
+import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
 
 class HabitAdapter(
     private val habits: List<Habit>,
-    private val progressMap: Map<String, Int>,
-    private val onIncrement: (Habit) -> Unit,
-    private val onLongClick: (Habit) -> Unit
-) : RecyclerView.Adapter<HabitAdapter.ViewHolder>() {
+    private val completionMap: MutableMap<String, Boolean>,
+    private val onChecked: (Habit, Boolean) -> Unit
+) : RecyclerView.Adapter<HabitAdapter.HabitViewHolder>() {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvName: TextView = view.findViewById(R.id.tvHabitName)
-        val tvProgress: TextView = view.findViewById(R.id.tvHabitProgress)
-        val progressBar: ProgressBar = view.findViewById(R.id.habitProgressBar)
-        val btnAdd: MaterialButton = view.findViewById(R.id.btnIncrement)
+    inner class HabitViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val name: TextView = view.findViewById(R.id.habitName)
+        val check: CheckBox = view.findViewById(R.id.habitCheck)
+        val card: View = view.findViewById(R.id.habitCard)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_habit, parent, false)
-        return ViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HabitViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_habit, parent, false)
+        return HabitViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: HabitViewHolder, position: Int) {
+
         val habit = habits[position]
-        // Get progress from the map, default to 0 if no log exists for today
-        val currentProgress = progressMap[habit.id] ?: 0
 
-        // 1. Set Texts
-        holder.tvName.text = habit.name
-        holder.tvProgress.text = "$currentProgress / ${habit.goalValue} ${habit.unit}"
+        holder.name.text = habit.name
 
-        // 2. Calculate and Set Progress
-        // Formula: (Current / Goal) * 100
-        val progressPercent = if (habit.goalValue > 0) {
-            (currentProgress.toFloat() / habit.goalValue.toFloat() * 100).toInt()
-        } else 0
+        // ❗ remove old listener first
+        holder.check.setOnCheckedChangeListener(null)
 
-        holder.progressBar.progress = progressPercent
+        holder.check.isChecked = completionMap[habit.id] ?: false
 
-        // 3. Increment Button Logic
-        holder.btnAdd.setOnClickListener {
-            onIncrement(habit)
-        }
+        // ✅ click listener instead of change listener
+        holder.check.setOnClickListener {
 
-        // 4. Delete Logic (Long Click)
-        holder.itemView.setOnLongClickListener {
-            onLongClick(habit)
-            true // consumes the click
-        }
+            val checked = holder.check.isChecked
 
-        // 5. Visual Feedback if completed
-        if (currentProgress >= habit.goalValue) {
-            holder.btnAdd.isEnabled = false
-            holder.btnAdd.alpha = 0.5f // Make it look disabled
-        } else {
-            holder.btnAdd.isEnabled = true
-            holder.btnAdd.alpha = 1.0f
+            animateCard(holder.card)
+
+            completionMap[habit.id] = checked
+            onChecked(habit, checked)
         }
     }
 
     override fun getItemCount() = habits.size
+
+
+    // ✅ STRONG visible animation
+    private fun animateCard(view: View) {
+
+        view.animate().cancel()
+
+        view.scaleX = 1f
+        view.scaleY = 1f
+
+        view.animate()
+            .scaleX(0.85f)
+            .scaleY(0.85f)
+            .setDuration(100)
+            .withEndAction {
+
+                view.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200)
+                    .start()
+            }
+            .start()
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.fitnestx
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -35,6 +36,13 @@ class ProfileFragment : Fragment() {
         val viewHeight = view.findViewById<View>(R.id.cardHeight)
         val viewWeight = view.findViewById<View>(R.id.cardWeight)
         val viewAge = view.findViewById<View>(R.id.cardAge)
+        val btnViewDetails = view.findViewById<View>(R.id.btnViewDetails)
+
+        btnViewDetails.setOnClickListener {
+            startActivity(
+                Intent(requireContext(), BMIInfoActivity::class.java)
+            )
+        }
 
         fetchUserData(tvName, viewHeight, viewWeight, viewAge)
 

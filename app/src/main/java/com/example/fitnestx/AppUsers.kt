@@ -22,11 +22,6 @@ data class AppUsers(
     val goalType: String? = null, // e.g., "Weight Loss", "Muscle Gain"
     val fitnessLevel: String? = "Beginner", // e.g., "Beginner", "Intermediate"
 
-    // Membership & Subscription (Nava suggest karyela tables mujab)
-//    val membershipPlanId: String? = "free_plan",
-//    val membershipStatus: String? = "Active", // Active, Expired, Pending
-//    val membershipExpiryDate: String? = null,
-
     // Internal App Flow Control
     @field:JvmField
     val isProfileComplete: Boolean = false,
