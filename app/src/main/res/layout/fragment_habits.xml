@@ -1,61 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="16dp"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Title -->
+    <!-- MAIN CONTENT -->
 
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Habits"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/app_theme"
-        android:gravity="left"
-        android:paddingBottom="6dp"/>
+        android:layout_height="match_parent">
 
-    <!-- Current Date -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingBottom="4dp">
 
-    <TextView
-        android:id="@+id/dateText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@color/app_theme2"
-        android:gravity="left"
-        android:paddingBottom="12dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Habits"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/app_theme" />
 
-    <!-- RecyclerView -->
+            <TextView
+                android:id="@+id/tvHabitMarquee"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:ellipsize="marquee"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:text="🔥 Keep Track Your Habit Goals , Click here to view your Habit Insights Charts..."
+                android:textColor="#FF4B4B"
+                android:textSize="14sp" />
+        </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/habitRecycler"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginBottom="12dp"/>
+        <TextView
+            android:id="@+id/dateText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@android:color/holo_blue_dark"
+            android:paddingBottom="12dp"/>
 
-    <!-- Manage Habit Button -->
+        <LinearLayout
+            android:id="@+id/layoutCompletedHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:visibility="gone">
+            <ImageView
+                android:id="@+id/ivArrow"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/arrow_down"
+                android:contentDescription="Toggle Visibility" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/manageHabitBtn"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="Manage Habits"
-        android:textSize="16sp"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="8dp"
-        app:backgroundTint="@color/app_theme"
-        app:cornerRadius="16dp"
-        app:elevation="6dp"
-        app:icon="@android:drawable/ic_menu_manage"
-        app:iconGravity="textStart"
-        app:iconPadding="8dp"/>
+            <TextView
+                android:id="@+id/tvCompletedCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 completed"
+                android:layout_marginStart="12dp"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/habitRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
 
 
-</LinearLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/manageHabitBtn"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Manage Habits"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            app:backgroundTint="@color/app_theme"
+            app:cornerRadius="18dp"
+            android:layout_marginTop="12dp"/>
+
+    </LinearLayout>
+
+    <!-- CONFETTI VIEW -->
+</FrameLayout>

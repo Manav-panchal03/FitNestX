@@ -16,6 +16,9 @@
         android:theme="@style/Theme.FitNestX"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".HabitStatsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ManageHabitActivity"
             android:exported="false" />
         <activity

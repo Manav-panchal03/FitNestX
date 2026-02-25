@@ -456,38 +456,34 @@ class HomeFragment : Fragment() , SensorEventListener {
 
                 override fun onDataChange(snapshot: DataSnapshot) {
 
-                    // CRASH FIX — fragment attached check
-                    if (!isAdded || view == null) return
+                    // ✅ Absolute safety check
+                    val ctx = context ?: return
+                    val currentView = view ?: return
 
-                    activity?.runOnUiThread {
+                    if (!isAdded) return
 
-                        if (!isAdded) return@runOnUiThread
+                    if (snapshot.exists()) {
 
-                        if (snapshot.exists()) {
+                        btn.text = "Logged Today ✓"
+                        btn.isEnabled = false
+                        btn.alpha = 0.6f
 
-                            btn.text = "Logged Today ✓"
-                            btn.isEnabled = false
-                            btn.alpha = 0.6f
+                        btn.setTextColor(
+                            ContextCompat.getColor(ctx, R.color.app_theme2)
+                        )
 
-                            context?.let {
-                                btn.setTextColor(
-                                    ContextCompat.getColor(it, R.color.app_theme2)
-                                )
-                            }
-
-                            btn.setBackgroundColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    android.R.color.transparent
-                                )
+                        btn.setBackgroundColor(
+                            ContextCompat.getColor(
+                                ctx,
+                                android.R.color.transparent
                             )
+                        )
 
-                        } else {
+                    } else {
 
-                            btn.text = "Log Weight"
-                            btn.isEnabled = true
-                            btn.alpha = 1f
-                        }
+                        btn.text = "Log Weight"
+                        btn.isEnabled = true
+                        btn.alpha = 1f
                     }
                 }
 
