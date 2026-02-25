@@ -5,9 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kotlin.math.pow
@@ -47,9 +50,25 @@ class ProfileFragment : Fragment() {
         fetchUserData(tvName, viewHeight, viewWeight, viewAge)
 
         btnLogout.setOnClickListener {
-            auth.signOut()
-            activity?.finish() // Closes MainActivity and returns to Login
+            AlertDialog.Builder(requireContext())
+                .setTitle("Sign out")
+                .setMessage("Do you really want to sign out?")
+                .setPositiveButton("Sign out") { _, _ ->
+                    FirebaseAuth.getInstance().signOut()
+                    activity?.finish()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+           // auth.signOut()
+            //activity?.finish() // Closes MainActivit    y and returns to Login
         }
+
+        val btnEditProfile = view.findViewById<View>(R.id.ivEditProfilePic)
+
+        btnEditProfile.setOnClickListener {
+            showEditProfileDialog()
+        }
+
     }
 
     private fun fetchUserData(nameTv: TextView, hCard: View, wCard: View, aCard: View) {
@@ -102,4 +121,101 @@ class ProfileFragment : Fragment() {
                 "Your BMI is ${String.format("%.1f", bmi)} ($status)"
         }
     }
+
+    private fun showEditProfileDialog() {
+
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_edit_profile, null)
+
+        val etName = dialogView.findViewById<android.widget.EditText>(R.id.etEditName)
+        val etBio = dialogView.findViewById<android.widget.EditText>(R.id.etEditBio)
+        val etGoalWeight = dialogView.findViewById<android.widget.EditText>(R.id.etGoalWeight)
+        val spGoalType = dialogView.findViewById<android.widget.Spinner>(R.id.spGoalType)
+        val btnSave = dialogView.findViewById<View>(R.id.btnSaveProfile)
+
+        val passwordSection = dialogView.findViewById<View>(R.id.layoutPasswordSection)
+        val btnChangePassword = dialogView.findViewById<View>(R.id.btnChangePassword)
+
+        // ✅ Spinner data
+        val goals = arrayOf("Weight Loss", "Muscle Gain", "Maintain")
+        spGoalType.adapter = android.widget.ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            goals
+        )
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        // 🔥 Prefill existing data
+        dbRef.get().addOnSuccessListener { snap ->
+            val user = snap.getValue(AppUsers::class.java) ?: return@addOnSuccessListener
+
+            etName.setText(user.name)
+            etBio.setText(user.bio)
+            etGoalWeight.setText(user.goalWeight?.toString() ?: "")
+
+            val index = goals.indexOf(user.goalType ?: "")
+            if (index >= 0) spGoalType.setSelection(index)
+        }
+
+        // ✅ SAVE
+        btnSave.setOnClickListener {
+
+            val oldPass = dialogView.findViewById<EditText>(R.id.etOldPassword).text.toString()
+            val newPass = dialogView.findViewById<EditText>(R.id.etNewPassword).text.toString()
+            val confirmPass = dialogView.findViewById<EditText>(R.id.etConfirmPassword).text.toString()
+
+// Only change password if user entered something
+            if (oldPass.isNotEmpty() || newPass.isNotEmpty() || confirmPass.isNotEmpty()) {
+
+                if (newPass != confirmPass) {
+                    Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                val user = auth.currentUser!!
+                val credential = EmailAuthProvider.getCredential(user.email!!, oldPass)
+
+                user.reauthenticate(credential)
+                    .addOnSuccessListener {
+                        user.updatePassword(newPass)
+                    }
+            }
+
+            val updates = hashMapOf<String, Any?>()
+
+            updates["name"] = etName.text.toString().trim()
+            updates["bio"] = etBio.text.toString().trim()
+            updates["goalWeight"] =
+                etGoalWeight.text.toString().toDoubleOrNull()
+
+            updates["goalType"] = spGoalType.selectedItem.toString()
+
+            dbRef.updateChildren(updates)
+                .addOnSuccessListener {
+                    Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Update failed", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+        btnChangePassword.setOnClickListener {
+
+            if (passwordSection.visibility == View.GONE) {
+                passwordSection.visibility = View.VISIBLE
+                btnChangePassword.animate().rotation(180f).setDuration(200).start()
+            } else {
+                passwordSection.visibility = View.GONE
+                btnChangePassword.animate().rotation(0f).setDuration(200).start()
+            }
+        }
+
+        dialog.show()
+    }
+
 }
