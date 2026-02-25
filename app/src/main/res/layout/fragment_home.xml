@@ -247,49 +247,66 @@
             android:layout_marginTop="10dp"
             app:cardCornerRadius="18dp">
 
-            <LinearLayout
-                android:padding="18dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <ProgressBar
-                    android:id="@+id/waterProgressBar"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:max="100"/>
-
                 <LinearLayout
-                    android:layout_weight="1"
-                    android:layout_marginStart="14dp"
-                    android:orientation="vertical"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="18dp">
 
-                    <TextView
+                    <ProgressBar
+                        android:id="@+id/waterProgressBar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:progressDrawable="@drawable/circular_progress_bar"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:max="100"/>
+
+                    <LinearLayout
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Water Intake"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvWaterStats"
+                            android:text="0 / 3 L"
+                            android:textColor="#2196F3"/>
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnLogWater"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Water Intake"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/tvWaterStats"
-                        android:text="0 / 3 L"
-                        android:textColor="#2196F3"/>
+                        android:layout_marginRight="12dp"
+                        android:text="Log"
+                        app:cornerRadius="12dp"
+                        app:backgroundTint="@color/app_theme2"/>
                 </LinearLayout>
 
-                <com.google.android.material.button.MaterialButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/btnLogWater"
-                    android:text="Log"
-                    app:cornerRadius="12dp"
-                    app:backgroundTint="@color/app_theme2"/>
-            </LinearLayout>
+                <ImageButton
+                    android:id="@+id/btnWaterMenu"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_more_vert" />
+            </RelativeLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
@@ -301,47 +318,66 @@
             android:layout_marginTop="10dp"
             app:cardCornerRadius="18dp">
 
-            <LinearLayout
-                android:padding="18dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/sleep"/>
-
                 <LinearLayout
-                    android:layout_weight="1"
-                    android:layout_marginStart="14dp"
-                    android:orientation="vertical"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="18dp">
 
-                    <TextView
+                    <ProgressBar
+                        android:id="@+id/sleepProgressBar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:progressDrawable="@drawable/circular_progress_bar"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:max="100"/>
+
+                    <LinearLayout
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sleep "
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvSleepStats"
+                            android:text="0 / 7 Hr"
+                            android:textColor="#2196F3"/>
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnLogSleep"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sleep"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/tvSleepStats"
-                        android:text="0 / 7 hrs"
-                        android:textColor="#2196F3"/>
+                        android:text="Log"
+                        app:cornerRadius="12dp"
+                        android:layout_marginRight="12dp"
+                        app:backgroundTint="@color/app_theme2"/>
                 </LinearLayout>
 
-                <com.google.android.material.button.MaterialButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/btnLogSleep"
-                    android:text="Log"
-                    app:cornerRadius="12dp"
-                    app:backgroundTint="@color/app_theme2"/>
-            </LinearLayout>
+                <ImageButton
+                    android:id="@+id/btnSleepMenu"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_more_vert" />
+            </RelativeLayout>
 
         </com.google.android.material.card.MaterialCardView>
 

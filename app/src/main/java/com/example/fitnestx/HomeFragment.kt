@@ -17,7 +17,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -43,17 +45,22 @@ import kotlin.jvm.java
 class HomeFragment : Fragment() , SensorEventListener {
 
     private lateinit var auth : FirebaseAuth
+
+    private lateinit var database : DatabaseReference
     private lateinit var dbRef : DatabaseReference
     private lateinit var dbWater : DatabaseReference
     private lateinit var dbSleep : DatabaseReference
     private lateinit var dbSteps : DatabaseReference
     private lateinit var dbWeightHistory: DatabaseReference
-
+    private val userId: String get() = auth.currentUser?.uid ?: "" // Helper getter
     private lateinit var todayDate : String
 
     private var startingWeight: Double = 0.0
     private var goalWeight: Double = 0.0
     private var currentWeight = 0.0
+
+    private var waterGoal = 3 // Default
+    private var sleepGoal = 7 // Default
 
 
     //sensor variables
@@ -93,6 +100,7 @@ class HomeFragment : Fragment() , SensorEventListener {
         val tvTime = view.findViewById<TextView>(R.id.tvCurrentTime)
         val tvUserGoal = view.findViewById<TextView>(R.id.tvUserGoal)
         val waterBar = view.findViewById<ProgressBar>(R.id.waterProgressBar)
+        val sleepBar = view.findViewById<ProgressBar>(R.id.sleepProgressBar)
         val tvWater = view.findViewById<TextView>(R.id.tvWaterStats)
         val tvSleep = view.findViewById<TextView>(R.id.tvSleepStats)
         val btnLogWater = view.findViewById<Button>(R.id.btnLogWater)
@@ -104,8 +112,19 @@ class HomeFragment : Fragment() , SensorEventListener {
         val btnLogWeight = view.findViewById<Button>(R.id.btnLogWeight)
         val tvCurrentWeight = view.findViewById<TextView>(R.id.tvCurrentWeight)
         val cardWeight = view.findViewById<View>(R.id.cardWeightProgress)
+        val btnWaterMenu = view.findViewById<ImageButton>(R.id.btnWaterMenu)
+        val btnSleepMenu = view.findViewById<ImageButton>(R.id.btnSleepMenu)
+        btnWaterMenu.setOnClickListener {
+            showCardMenu(it, "water")
+        }
+        btnSleepMenu.setOnClickListener {
+            showCardMenu(it, "sleep")
+        }
 
+        database = FirebaseDatabase.getInstance().reference
 
+        // Start loading
+        loadUserGoals()
 
         //sensor init
         sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -162,23 +181,26 @@ class HomeFragment : Fragment() , SensorEventListener {
             override fun onCancelled(error: DatabaseError) {}
         })
 
-        dbWater.addValueEventListener(object : ValueEventListener{
+        // 2. Water Listener update karo (Dynamic Goal mate)
+        dbWater.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val amount = snapshot.getValue(Double::class.java) ?: 0.0
-                val waterPercent = (amount / 3.0) * 100
+                // Have aapde waterGoal (je dynamic che) no use karishu
+                val waterPercent = (amount / waterGoal.toDouble()) * 100
                 waterBar.progress = waterPercent.toInt()
-                tvWater.text = "$amount / 3.0 L"
+                tvWater.text = String.format("%.1f / %d L", amount, waterGoal)
             }
-
             override fun onCancelled(error: DatabaseError) {}
         })
 
-        dbSleep.addValueEventListener(object : ValueEventListener{
+// 3. Sleep Listener update karo
+        dbSleep.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val hours = snapshot.getValue(Double::class.java) ?: 0.0
-                tvSleep.text = "$hours / 7 hrs"
+                val sleepPercent = (hours / sleepGoal.toDouble()) * 100
+                sleepBar.progress = sleepPercent.toInt()
+                tvSleep.text = String.format("%.1f / %d hrs", hours, sleepGoal)
             }
-
             override fun onCancelled(error: DatabaseError) {}
         })
 
@@ -489,6 +511,99 @@ class HomeFragment : Fragment() , SensorEventListener {
 
                 override fun onCancelled(error: DatabaseError) {}
             })
+    }
+
+    private fun showCardMenu(view: View, type: String) {
+        val popup = PopupMenu(requireContext(), view)
+        popup.menu.add("Info")
+        popup.menu.add("Edit Goal")
+
+        popup.setOnMenuItemClickListener { item ->
+            when (item.title) {
+                "Info" -> showInfoDialog(type)
+                "Edit Goal" -> showEditGoalDialog(type)
+            }
+            true
+        }
+        popup.show()
+    }
+
+    private fun showInfoDialog(type: String) {
+        val message = if (type == "water") {
+            "Water is essential for metabolism and energy. 3L is the standard for active users."
+        } else {
+            "Quality sleep of 7-8 hours helps in muscle recovery and mental health."
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("${type.replaceFirstChar { it.uppercase() }} Info")
+            .setMessage(message)
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    private fun showEditGoalDialog(type: String) {
+        val editText = EditText(requireContext())
+        editText.inputType = InputType.TYPE_CLASS_NUMBER
+        val unit = if (type == "water") "Liters" else "Hours"
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Edit $type Goal")
+            .setMessage("Enter your target in $unit:")
+            .setView(editText)
+            .setPositiveButton("Save") { _, _ ->
+                val newGoal = editText.text.toString()
+                if (newGoal.isNotEmpty()) {
+                    // Firebase ma save karva nu logic
+                    saveGoalToFirebase(type, newGoal.toInt())
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    // ... loadUserGoals() function call karo onCreateView ma ...
+
+    private fun saveGoalToFirebase(type: String, newGoal: Int) {
+        val goalPath = if (type == "water") "waterGoal" else "sleepGoal"
+
+        database.child("UserWaterAndSleepGoal").child(userId).child(goalPath)
+            .setValue(newGoal)
+            .addOnSuccessListener {
+                // Local variables update karo ane UI refresh karo
+                if (type == "water") waterGoal = newGoal else sleepGoal = newGoal
+                updateHabitUI()
+                Toast.makeText(requireContext(), "Goal updated!", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun loadUserGoals() {
+        database.child("UserWaterAndSleepGoal").child(userId)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    waterGoal = snapshot.child("waterGoal").getValue(Int::class.java) ?: 3
+                    sleepGoal = snapshot.child("sleepGoal").getValue(Int::class.java) ?: 7
+                    updateHabitUI()
+                }
+                override fun onCancelled(error: DatabaseError) {}
+            })
+    }
+
+    private fun updateHabitUI() {
+        // UI update logic - tame jya 0 / 3 L lakhyu che tya variables vapro
+        val tvWaterStats = view?.findViewById<TextView>(R.id.tvWaterStats)
+        val tvSleepStats = view?.findViewById<TextView>(R.id.tvSleepStats)
+
+        // Current intake fetch karvanu logic (je tamari pase hase)
+        val currentWater = 0 // Aa tame Firebase mathi fetch karta hoso
+        val currentSleep = 0
+
+        tvWaterStats?.text = "$currentWater / $waterGoal L"
+        tvSleepStats?.text = "$currentSleep / $sleepGoal hrs"
+
+        // Progress bar update
+        val waterProgress = view?.findViewById<ProgressBar>(R.id.waterProgressBar)
+        waterProgress?.max = waterGoal * 100 // Scale to 100%
     }
 
 }
