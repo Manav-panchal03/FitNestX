@@ -1,5 +1,6 @@
 package com.example.fitnestx
 
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -26,6 +27,7 @@ class HabitsFragment : Fragment() {
 
     private lateinit var recycler: RecyclerView
     private lateinit var adapter: HabitAdapter
+    private lateinit var dateText: TextView
 
     // UI Elements
     private lateinit var layoutCompletedHeader: LinearLayout
@@ -43,6 +45,9 @@ class HabitsFragment : Fragment() {
 
     private var showChecked = true
 
+    // --- New: Selected Date state ---
+    private var selectedDateKey: String = ""
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,106 +61,123 @@ class HabitsFragment : Fragment() {
         layoutCompletedHeader = view.findViewById(R.id.layoutCompletedHeader)
         ivArrow = view.findViewById(R.id.ivArrow)
         tvCompletedCount = view.findViewById(R.id.tvCompletedCount)
-        // ... inside onCreateView ...
+        dateText = view.findViewById(R.id.dateText)
+
         val tvMarquee = view.findViewById<TextView>(R.id.tvHabitMarquee)
-        tvMarquee.isSelected = true // Aa line Marquee chalu karva mate jaruri che
+        tvMarquee.isSelected = true
 
         tvMarquee.setOnClickListener {
-            val intent = Intent(requireContext(), HabitStatsActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(requireContext(), HabitStatsActivity::class.java))
+        }
+
+        // Initialize with Today's Date
+        val today = LocalDate.now()
+        selectedDateKey = today.toString() // yyyy-MM-dd
+        dateText.text = today.format(DateTimeFormatter.ofPattern("EEEE, dd MMM yyyy"))
+
+        // --- Date Picker Click ---
+        dateText.setOnClickListener {
+            showCalendarDialog()
         }
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
-        // Adapter setup with completion callback
         adapter = HabitAdapter(habits, completionMap) { habit, checked ->
             saveCompletion(habit.id, checked)
-            // Header count update thase jyare koi check/uncheck thase
         }
 
         recycler.adapter = adapter
 
-        // Smooth animations jem Google Keep ma hoy che
         val animator = DefaultItemAnimator()
         animator.moveDuration = 350
         animator.changeDuration = 250
         recycler.itemAnimator = animator
 
-        // Date Display logic
-        val dateText = view.findViewById<TextView>(R.id.dateText)
-        val today = LocalDate.now()
-        val formatter = DateTimeFormatter.ofPattern("EEEE, dd MMM yyyy")
-        dateText.text = today.format(formatter)
-
         loadHabits()
-        loadTodayData()
+        loadDataByDate(selectedDateKey)
 
         view.findViewById<MaterialButton>(R.id.manageHabitBtn).setOnClickListener {
             startActivity(Intent(requireContext(), ManageHabitActivity::class.java))
         }
 
-        // --- Google Keep Toggle Logic ---
         layoutCompletedHeader.setOnClickListener {
             showChecked = !showChecked
             adapter.toggleCheckedVisibility(showChecked)
-
-            // Khali arrow rotate thase, text hamesha seedhu rahese
-            ivArrow.animate()
-                .rotation(if (showChecked) 0f else -90f)
-                .setDuration(250)
-                .start()
+            ivArrow.animate().rotation(if (showChecked) 0f else -90f).setDuration(250).start()
         }
 
         return view
     }
 
-    private fun todayDate(): String {
-        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+    private fun showCalendarDialog() {
+        val calendar = Calendar.getInstance()
+        val picker = DatePickerDialog(requireContext(), { _, year, month, day ->
+            val cal = Calendar.getInstance()
+            cal.set(year, month, day)
+
+            val apiFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val displayFormat = SimpleDateFormat("EEEE, dd MMM yyyy", Locale.getDefault())
+
+            selectedDateKey = apiFormat.format(cal.time)
+            dateText.text = displayFormat.format(cal.time)
+
+            // Re-load data for new date
+            loadDataByDate(selectedDateKey)
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+        picker.show()
     }
 
-    // 1. loadHabits ma sudharo: Deleted habits na logs clean karva mate
     private fun loadHabits() {
         habitsListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val currentHabitIds = mutableSetOf<String>()
+                val currentIds = mutableSetOf<String>()
                 habits.clear()
-
                 for (child in snapshot.children) {
                     val habitId = child.key!!
                     val name = child.child("name").getValue(String::class.java)
                     if (name != null) {
                         habits.add(Habit(habitId, name))
-                        currentHabitIds.add(habitId)
+                        currentIds.add(habitId)
                     }
                 }
-
-                // --- Extra Cleaning Logic ---
-                // Jo koi habit log ma che pan "Habits" list mathi delete thai gai che, to ene kadhi nakho
-                cleanupOrphanedLogs(currentHabitIds)
-
+                cleanupOrphanedLogs(currentIds)
                 adapter.notifyDataSetChanged()
             }
             override fun onCancelled(error: DatabaseError) {}
         }
-
-        database.child("Habits")
-            .orderByChild("userId")
-            .equalTo(userId)
-            .addValueEventListener(habitsListener!!)
+        database.child("Habits").orderByChild("userId").equalTo(userId).addValueEventListener(habitsListener!!)
     }
 
-    // 2. Aa navu function add karo je orphaned logs delete karse
-    private fun cleanupOrphanedLogs(currentHabitIds: Set<String>) {
-        val todayRef = database.child("DailyHabitLogs").child(userId).child(todayDate())
+    private fun loadDataByDate(date: String) {
+        // Remove old listener if exists
+        dailyListener?.let { database.child("DailyHabitLogs").child(userId).child(selectedDateKey).removeEventListener(it) }
 
-        todayRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        dailyListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                completionMap.clear()
+                val activeIds = habits.map { it.id }.toSet()
+                for (child in snapshot.children) {
+                    val id = child.key!!
+                    val value = child.getValue(Boolean::class.java)
+                    if (value != null && activeIds.contains(id)) {
+                        completionMap[id] = value
+                    }
+                }
+                adapter.notifyDataSetChanged()
+                updateCheckedHeader()
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        }
+        database.child("DailyHabitLogs").child(userId).child(date).addValueEventListener(dailyListener!!)
+    }
+
+    private fun cleanupOrphanedLogs(currentHabitIds: Set<String>) {
+        val ref = database.child("DailyHabitLogs").child(userId).child(selectedDateKey)
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (log in snapshot.children) {
-                    val habitIdInLog = log.key ?: continue
-
-                    // Jo aa habitId main list ma nathi, to log mathi remove karo
-                    if (!currentHabitIds.contains(habitIdInLog)) {
-                        todayRef.child(habitIdInLog).removeValue()
+                    if (!currentHabitIds.contains(log.key)) {
+                        ref.child(log.key!!).removeValue()
                     }
                 }
             }
@@ -163,60 +185,19 @@ class HabitsFragment : Fragment() {
         })
     }
 
-    // 3. loadTodayData ma pan filter muko
-    private fun loadTodayData() {
-        dailyListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                completionMap.clear()
-
-                // Fakt e j habits load karo je hal ma exists kare che
-                val habitIds = habits.map { it.id }.toSet()
-
-                for (child in snapshot.children) {
-                    val habitId = child.key!!
-                    val value = child.getValue(Boolean::class.java)
-
-                    // Filter: Jo habit delete thai gai hoy to map ma na umeryo
-                    if (value != null && habitIds.contains(habitId)) {
-                        completionMap[habitId] = value
-                    }
-                }
-                adapter.notifyDataSetChanged()
-                updateCheckedHeader()
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
-        }
-
-        database.child("DailyHabitLogs")
-            .child(userId)
-            .child(todayDate())
-            .addValueEventListener(dailyListener!!)
-    }
-
     private fun saveCompletion(habitId: String, checked: Boolean) {
-        database.child("DailyHabitLogs")
-            .child(userId)
-            .child(todayDate())
-            .child(habitId)
-            .setValue(checked)
+        database.child("DailyHabitLogs").child(userId).child(selectedDateKey).child(habitId).setValue(checked)
     }
 
     private fun updateCheckedHeader() {
         val count = completionMap.values.count { it }
-        if (count > 0) {
-            layoutCompletedHeader.visibility = View.VISIBLE
-            tvCompletedCount.text = "$count completed"
-        } else {
-            layoutCompletedHeader.visibility = View.GONE
-        }
+        layoutCompletedHeader.visibility = if (count > 0) View.VISIBLE else View.GONE
+        tvCompletedCount.text = "$count completed"
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         habitsListener?.let { database.child("Habits").removeEventListener(it) }
-        dailyListener?.let {
-            database.child("DailyHabitLogs").child(userId).child(todayDate()).removeEventListener(it)
-        }
+        dailyListener?.let { database.child("DailyHabitLogs").child(userId).child(selectedDateKey).removeEventListener(it) }
     }
 }
