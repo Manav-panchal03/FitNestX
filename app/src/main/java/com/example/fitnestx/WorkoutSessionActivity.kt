@@ -32,15 +32,19 @@ class WorkoutSessionActivity : AppCompatActivity() {
         val routine = intent.getParcelableExtra<RoutineModel>("ROUTINE_DATA") ?: return
         title = routine.routineName
 
+// એક્સરસાઇઝ મુજબ સેટ્સ એડ કરવાનું લોજિક
         for (ex in routine.exercises) {
+            var setCounter = 1 // ⭐ દરેક નવી એક્સરસાઇઝ માટે કાઉન્ટર ૧ થી શરૂ થશે
             for (set in ex.sets) {
                 sessionSets.add(
                     WorkoutSetSession(
                         exercise = ex.name,
+                        setNumber = setCounter, // ✅ હવે 'setNumber' પાસ થશે
                         plannedReps = set.reps.toIntOrNull() ?: 0,
                         plannedWeight = set.weight.toFloatOrNull() ?: 0f
                     )
                 )
+                setCounter++ // ⭐ આગલા સેટ માટે નંબર વધારો
             }
         }
 

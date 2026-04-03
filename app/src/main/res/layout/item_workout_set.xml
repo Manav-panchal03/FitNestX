@@ -31,6 +31,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
+        <TextView
+            android:id="@+id/tvSetNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set 1"
+            android:textColor="#FF7B00"
+            android:textStyle="bold" />
+
         <EditText
             android:id="@+id/etReps"
             android:layout_width="60dp"
