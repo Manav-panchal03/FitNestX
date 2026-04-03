@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     android:fillViewport="true">
 
     <LinearLayout
@@ -13,14 +12,20 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Profile"
+            android:textSize="26dp"
+            android:textStyle="bold"
+            android:textColor="@color/app_theme"
+            android:layout_marginBottom="12dp"/>
+
         <!-- PROFILE HEADER CARD -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="4dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#EEEEEE">
+            app:strokeWidth="1dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -70,6 +75,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:id="@+id/UserProgramTv"
                         android:text="Lose Weight Program"
                         android:textColor="#7B6F72"
                         android:textSize="13sp"
@@ -96,10 +102,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="2dp"
-            app:backgroundTint="#EEF1FF">
+            android:layout_marginTop="22dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -140,6 +143,21 @@
             </RelativeLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAnalytics"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="35dp"
+            android:text="Workout Analytics "
+            android:textAllCaps="false"
+            android:textColor="#FF4B4B"
+            android:gravity="start|center_vertical"
+            app:icon="@drawable/dumbell"
+            app:iconGravity="end"
+            app:iconPadding="12dp"
+            app:iconTint="#FF4B4B" />
+
         <!-- LOGOUT -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
@@ -153,6 +171,7 @@
             android:gravity="start|center_vertical"
             app:icon="@android:drawable/ic_lock_power_off"
             app:iconPadding="12dp"
+            app:iconGravity="end"
             app:iconTint="#FF4B4B" />
 
     </LinearLayout>

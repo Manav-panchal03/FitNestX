@@ -33,6 +33,7 @@ class ProfileFragment : Fragment() {
 
         // Bind Views
         val tvName = view.findViewById<TextView>(R.id.tvProfileName)
+        val UserProgramTv = view.findViewById<TextView>(R.id.UserProgramTv)
         val btnLogout = view.findViewById<View>(R.id.btnLogout)
 
         // Bind Stat Cards (using the IDs from the <include> tags)
@@ -40,6 +41,8 @@ class ProfileFragment : Fragment() {
         val viewWeight = view.findViewById<View>(R.id.cardWeight)
         val viewAge = view.findViewById<View>(R.id.cardAge)
         val btnViewDetails = view.findViewById<View>(R.id.btnViewDetails)
+        val btnAnalytics = view.findViewById<View>(R.id.btnAnalytics)
+
 
         btnViewDetails.setOnClickListener {
             startActivity(
@@ -47,7 +50,14 @@ class ProfileFragment : Fragment() {
             )
         }
 
-        fetchUserData(tvName, viewHeight, viewWeight, viewAge)
+        btnAnalytics.setOnClickListener {
+            startActivity(
+                Intent(requireContext(), AnalyticsActivity::class.java)
+            )
+
+        }
+
+        fetchUserData(tvName, UserProgramTv,viewHeight, viewWeight, viewAge)
 
         btnLogout.setOnClickListener {
             AlertDialog.Builder(requireContext())
@@ -71,13 +81,15 @@ class ProfileFragment : Fragment() {
 
     }
 
-    private fun fetchUserData(nameTv: TextView, hCard: View, wCard: View, aCard: View) {
+    private fun fetchUserData(nameTv: TextView,UserProgramTv : TextView ,hCard: View, wCard: View, aCard: View) {
         dbRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val user = snapshot.getValue(AppUsers::class.java) ?: return
 
                 // 1. Set Name
                 nameTv.text = user.name
+                UserProgramTv.text = user.goalType
+
 
                 // 2. Set Stat Card Values
                 hCard.findViewById<TextView>(R.id.tvStatValue).text = "${user.height}cm"
@@ -189,9 +201,7 @@ class ProfileFragment : Fragment() {
 
             updates["name"] = etName.text.toString().trim()
             updates["bio"] = etBio.text.toString().trim()
-            updates["goalWeight"] =
-                etGoalWeight.text.toString().toDoubleOrNull()
-
+            updates["goalWeight"] = etGoalWeight.text.toString().toDoubleOrNull()
             updates["goalType"] = spGoalType.selectedItem.toString()
 
             dbRef.updateChildren(updates)

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="20dp"
+    tools:context=".AnalyticsActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Workout Analytics"
+        android:textSize="23dp"
+        android:textStyle="bold"
+        android:textColor="@color/app_theme"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Analys your workout progress"
+        android:textColor="@color/fit_grey"
+        android:textStyle="bold"
+        android:textSize="13sp"
+        android:layout_marginBottom="12dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Routine"
+        android:textSize="18sp"
+        android:textColor="@color/app_theme2"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/spinnerRoutines"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Exercise"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/app_theme2"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/spinnerExercises"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:layout_marginTop="24dp">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/performanceChart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp" />
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

@@ -4,6 +4,6 @@ data class WorkoutSession(
     var id: String = "",
     var routineName: String = "",
     var timestamp: Long = System.currentTimeMillis(),
-    var sets: MutableList<WorkoutSetSession> = mutableListOf()
+    var exercises: List<ExerciseSession> = listOf() // હવે અહીં Exercises આવશે
 )
 
