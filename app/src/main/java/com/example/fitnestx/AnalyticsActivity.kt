@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -38,50 +37,76 @@ class AnalyticsActivity : AppCompatActivity() {
     }
 
     private fun loadSessionsAndSetupRoutines() {
-        database.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                allSessions.clear()
-                val routineNames = mutableSetOf<String>()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val routinesRef = FirebaseDatabase.getInstance().getReference("Routines").child(userId)
 
-                for (ds in snapshot.children) {
-                    val session = ds.getValue(WorkoutSession::class.java)
-                    session?.let {
-                        allSessions.add(it)
-                        routineNames.add(it.routineName)
-                    }
+        // ૧. પેલા ચેક કરો કે અત્યારે કયા રૂટિન એક્ઝિસ્ટ કરે છે
+        routinesRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(routineSnapshot: DataSnapshot) {
+                val activeRoutineNames = mutableSetOf<String>()
+                for (ds in routineSnapshot.children) {
+                    val name = ds.child("routineName").getValue(String::class.java)
+                    name?.let { activeRoutineNames.add(it) }
                 }
 
-                if (routineNames.isEmpty()) return
+                // ૨. હવે સેશન્સ લોડ કરો અને માત્ર એક્ટિવ રૂટિનના જ સેશન્સ ફિલ્ટર કરો
+                database.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(sessionSnapshot: DataSnapshot) {
+                        allSessions.clear()
+                        val filteredRoutineNames = mutableSetOf<String>()
 
-                val routineAdapter = ArrayAdapter(this@AnalyticsActivity, android.R.layout.simple_spinner_item, routineNames.toList())
-                routineAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinnerRoutines.adapter = routineAdapter
+                        for (ds in sessionSnapshot.children) {
+                            val session = ds.getValue(WorkoutSession::class.java)
+                            // ફિલ્ટર લોજિક: જો રૂટિન હજુ લિસ્ટમાં હોય તો જ સેશન લેવું
+                            if (session != null && activeRoutineNames.contains(session.routineName)) {
+                                allSessions.add(session)
+                                filteredRoutineNames.add(session.routineName)
+                            }
+                        }
 
-                spinnerRoutines.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                        setupExerciseSpinner(routineNames.toList()[p2])
+                        if (filteredRoutineNames.isEmpty()) {
+                            spinnerRoutines.adapter = null
+                            spinnerExercises.adapter = null
+                            chart.clear()
+                            return
+                        }
+
+                        updateRoutineSpinner(filteredRoutineNames.toList())
                     }
-                    override fun onNothingSelected(p0: AdapterView<*>?) {}
-                }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
             }
             override fun onCancelled(error: DatabaseError) {}
         })
     }
 
+    private fun updateRoutineSpinner(routineList: List<String>) {
+        val routineAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, routineList)
+        routineAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerRoutines.adapter = routineAdapter
+
+        spinnerRoutines.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                setupExerciseSpinner(routineList[p2])
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+        }
+    }
+
     private fun setupExerciseSpinner(routineName: String) {
         val exerciseNames = mutableSetOf<String>()
-
         allSessions.filter { it.routineName == routineName }.forEach { session ->
             session.exercises.forEach { exerciseNames.add(it.exerciseName) }
         }
 
-        val exerciseAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, exerciseNames.toList())
+        val exerciseList = exerciseNames.toList()
+        val exerciseAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, exerciseList)
         exerciseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerExercises.adapter = exerciseAdapter
 
         spinnerExercises.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                updateChartForExercise(routineName, exerciseNames.toList()[p2])
+                updateChartForExercise(routineName, exerciseList[p2])
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {}
         }
@@ -94,21 +119,15 @@ class AnalyticsActivity : AppCompatActivity() {
         val actualEntries = ArrayList<Entry>()
         val plannedEntries = ArrayList<Entry>()
         val xAxisLabels = ArrayList<String>()
-
         var globalSetCounter = 0f
 
         filteredSessions.forEach { session ->
             val exercise = session.exercises.find { it.exerciseName == exerciseName }
-
             exercise?.let { ex ->
                 ex.sets.forEachIndexed { setIndex, setData ->
-                    // સેટ મુજબ ડેટા એન્ટ્રી
                     actualEntries.add(Entry(globalSetCounter, setData.actualReps.toFloat()))
                     plannedEntries.add(Entry(globalSetCounter, setData.plannedReps.toFloat()))
-
-                    // X-axis લેબલ: "S1-Set1" (Session 1, Set 1)
                     xAxisLabels.add("Set ${setIndex + 1}")
-
                     globalSetCounter++
                 }
             }
@@ -120,14 +139,13 @@ class AnalyticsActivity : AppCompatActivity() {
         }
 
         val actualSet = LineDataSet(actualEntries, "$exerciseName (Actual)").apply {
-            color = Color.parseColor("#2ECC71") // Green
+            color = Color.parseColor("#2ECC71")
             setCircleColor(Color.parseColor("#2ECC71"))
             lineWidth = 3f
             circleRadius = 5f
             setDrawValues(true)
             valueTextSize = 10f
-            valueTextColor = Color.BLACK
-            mode = LineDataSet.Mode.LINEAR // સેટ-વાઈઝમાં Linear વધુ સ્પષ્ટ દેખાય છે
+            mode = LineDataSet.Mode.LINEAR
         }
 
         val plannedSet = LineDataSet(plannedEntries, "Target").apply {
@@ -138,22 +156,14 @@ class AnalyticsActivity : AppCompatActivity() {
             setDrawValues(false)
         }
 
-        // X-Axis Config - આ ભાગને અપડેટ કરો
         chart.xAxis.apply {
             position = XAxis.XAxisPosition.BOTTOM
             granularity = 1f
             setDrawGridLines(false)
-
-            // આ નવો સુરક્ષિત Formatter છે
             valueFormatter = object : ValueFormatter() {
                 override fun getFormattedValue(value: Float): String {
                     val index = value.toInt()
-                    // અહીં ચેક કરીએ છીએ કે ઇન્ડેક્સ લિસ્ટની રેન્જમાં છે કે નહીં
-                    return if (index >= 0 && index < xAxisLabels.size) {
-                        xAxisLabels[index]
-                    } else {
-                        "" // જો ઇન્ડેક્સ ખોટો હોય તો ખાલી જગ્યા બતાવો, ક્રેશ ના કરો
-                    }
+                    return if (index >= 0 && index < xAxisLabels.size) xAxisLabels[index] else ""
                 }
             }
         }

@@ -145,7 +145,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAnalytics"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.Material3.Button.OutlinedButton.Icon"
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:layout_marginTop="35dp"
@@ -161,7 +161,7 @@
         <!-- LOGOUT -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.Material3.Button.OutlinedButton.Icon"
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:layout_marginTop="35dp"

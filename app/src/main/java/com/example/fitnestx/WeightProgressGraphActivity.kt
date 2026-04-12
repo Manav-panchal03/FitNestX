@@ -1,5 +1,6 @@
 package com.example.fitnestx
 
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -116,62 +117,80 @@ class WeightProgressGraphActivity : AppCompatActivity() {
     // SETUP CHART ⭐
     // =========================
     private fun setupChart(entries: List<Entry>) {
-
         if (entries.isEmpty()) return
 
-        val dataSet = LineDataSet(entries, "Weight")
+        val dataSet = LineDataSet(entries, "Weight Progress")
 
-        dataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-        dataSet.lineWidth = 4f
-        dataSet.circleRadius = 6f
-        dataSet.setDrawCircleHole(false)
+// ૧. રેખાની જાડાઈ વધારો (૫-૬f રાખવી વધુ સ્પષ્ટ દેખાશે)
+        dataSet.lineWidth = 3f
+
+// ૨. રેખાનો કલર ઘટ્ટ કરો (દા.ત. તમારા થીમ મુજબનો ઘટ્ટ કે વાદળી)
+        dataSet.color = Color.parseColor("#00CCFF") // ઘટ્ટ વાદળી
+
+// ૩. ડેટા પોઈન્ટ્સ (Circles) પર વધુ ફોકસ કરો
+        dataSet.setDrawCircles(true)
+        dataSet.circleRadius = 6f // વર્તુળો થોડા મોટા કરો
+        dataSet.setCircleColor(Color.parseColor("#00CCFF")) // વર્તુળોનો કલર રેખા જેવો જ
+        dataSet.circleHoleColor = Color.WHITE // વર્તુળની વચ્ચે વાદળી હોલ રાખો
+        dataSet.circleHoleRadius = 4f
+        dataSet.setDrawCircleHole(true) // હોલ સાથે વર્તુળ દેખાશે
+
+// ૪. ડેટા રેખાની ઉપર વેલ્યુ લખવી હોય તો તે ચાલુ કરો
         dataSet.setDrawValues(true)
+        dataSet.valueTextSize = 12f  // વેલ્યુ થોડી મોટી કરો
+        dataSet.valueTextColor = Color.BLACK // કાળી વેલ્યુ વધુ સારી લાગશે
+        dataSet.valueFormatter = object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                return "${String.format("%.1f", value)} kg" // વેલ્યુની પાછળ kg લખો
+            }
+        }
+        // ... બાકીનું ડેટાસેટ લોજિક એમનેમ રાખો ...
 
         val lineData = LineData(dataSet)
         chart.data = lineData
 
-        // Clean UI
         chart.description.isEnabled = false
         chart.axisRight.isEnabled = false
         chart.legend.isEnabled = false
 
-        // X axis ⭐
+        // ⭐ ગ્રાફની નીચે વધારે જગ્યા આપો કારણ કે ઉભી તારીખો વધારે જગ્યા રોકશે
+        chart.setExtraOffsets(0f, 0f, 0f, 40f)
+
         val xAxis = chart.xAxis
         xAxis.position = XAxis.XAxisPosition.BOTTOM
+
+        // ⭐ દરેક પોઈન્ટ પર લેબલ બતાવવા માટે Granularity 1 રાખો
         xAxis.granularity = 1f
-        xAxis.setLabelCount(timestamps.size, true)
-        xAxis.axisMinimum = 0f
-        xAxis.axisMaximum = (timestamps.size - 1).toFloat()
-        xAxis.labelRotationAngle = -0f
+        xAxis.isGranularityEnabled = true
 
-        xAxis.valueFormatter =
-            object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String {
+        // ⭐ આ લાઈન કાઢી નાખજો અથવા 'timestamps.size' લખજો જેથી બધી જ તારીખ દેખાય
+        xAxis.setLabelCount(timestamps.size, false)
 
-                    val index = value.toInt()
+        // ⭐ તારીખોને પૂરેપૂરી ઉભી (-90) કરી નાખો
+        xAxis.labelRotationAngle = -90f
 
-                    if (index < 0 ||
-                        index >= timestamps.size
-                    ) return ""
-
-                    return formatDate(
-                        timestamps[index]
-                    )
+        xAxis.valueFormatter = object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                val index = value.toInt()
+                if (index >= 0 && index < timestamps.size) {
+                    // અહીં તમે "dd MMM" વાપરી શકો છો (દા.ત. 07 Apr)
+                    val sdf = SimpleDateFormat("dd MMM", Locale.getDefault())
+                    return sdf.format(Date(timestamps[index]))
                 }
+                return ""
             }
+        }
 
-        // Y padding
-        val yAxis = chart.axisLeft
-        yAxis.axisMinimum =
-            entries.minOf { it.y } - 1
-        yAxis.axisMaximum =
-            entries.maxOf { it.y } + 1
-
-        // Disable zoom
-        chart.setScaleEnabled(false)
-        chart.setPinchZoom(false)
-
+        // Y axis અને એનિમેશન
+        chart.axisLeft.setDrawGridLines(true)
         chart.animateY(1000)
+
+        // ⭐ જો ડેટા બહુ વધારે હોય તો યુઝરને સ્ક્રોલ કરવાની સુવિધા આપો
+        if (entries.size > 7) {
+            chart.setVisibleXRangeMaximum(7f) // એકસાથે ૭ તારીખો જ દેખાશે, બાકીની સ્ક્રોલ કરીને જોઈ શકાશે
+            chart.moveViewToX(entries.size.toFloat()) // લેટેસ્ટ ડેટા પર ફોકસ રાખશે
+        }
+
         chart.invalidate()
     }
 
@@ -229,16 +248,8 @@ class WeightProgressGraphActivity : AppCompatActivity() {
     // =========================
     // DATE FORMAT
     // =========================
-    private fun formatDate(
-        time: Long
-    ): String {
-
-        val sdf =
-            SimpleDateFormat(
-                "dd MMM",
-                Locale.getDefault()
-            )
-
+    private fun formatDateShort(time: Long): String {
+        val sdf = SimpleDateFormat("dd/MM", Locale.getDefault())
         return sdf.format(Date(time))
     }
 }

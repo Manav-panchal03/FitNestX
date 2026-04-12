@@ -97,15 +97,38 @@ class RoutineAdapter(
     private fun showDeleteDialog(holder: ViewHolder, position: Int) {
         AlertDialog.Builder(holder.itemView.context)
             .setTitle("Delete Routine")
-            .setMessage("Are you sure?")
+            .setMessage("Are you sure? This will also delete your workout history for this routine.")
             .setPositiveButton("Delete") { _, _ ->
                 val routine = routines[position]
+                val routineName = routine.routineName // ડિલીટ કરવા માટે નામ પકડો
+
                 holder.itemView.animate()
                     .translationX(holder.itemView.width.toFloat())
                     .alpha(0f)
                     .setDuration(250)
                     .withEndAction {
+                        // ૧. Routines નોડમાંથી ડિલીટ કરો
                         dbRef.child(routine.id).removeValue()
+
+                        // ૨. WorkoutSessions માંથી પણ ડેટા સાફ કરો (Ghost Data Fix)
+                        val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+                        if (userId != null) {
+                            val sessionsRef = com.google.firebase.database.FirebaseDatabase.getInstance()
+                                .getReference("WorkoutSessions").child(userId)
+
+                            // routineName મુજબ ફિલ્ટર કરીને ડિલીટ કરો
+                            sessionsRef.orderByChild("routineName").equalTo(routineName)
+                                .addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
+                                    override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                                        for (ds in snapshot.children) {
+                                            ds.ref.removeValue() // સેશન્સ પણ નીકળી જશે!
+                                        }
+                                    }
+                                    override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+                                })
+                        }
+
+                        // લિસ્ટ અપડેટ કરો
                         routines.removeAt(position)
                         notifyItemRemoved(position)
                     }

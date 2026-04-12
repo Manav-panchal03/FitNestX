@@ -17,7 +17,8 @@
             app:title="Weight Progress"
             app:titleTextColor="@color/app_theme"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginBottom="3dp"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
